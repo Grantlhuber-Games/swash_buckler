@@ -23,7 +23,8 @@
     "@latticexyz/world": "2.0.0-alpha.1.175+641d0d35",
     "@wagmi/chains": "^0.2.22",
     "contracts": "workspace:*",
-    "ethers": "^5.7.2"
+    "ethers": "^5.7.2",
+    "pixi.js": "^7.2.4"
   },
   "devDependencies": {
     "vite": "^4.2.1",
