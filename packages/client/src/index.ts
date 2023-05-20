@@ -1,235 +1,246 @@
-/*
-import { mount as mountDevTools } from "@latticexyz/dev-tools";
-import { setup } from "./mud/setup";
-*/
 import mudService from "./services/mud";
-import * as PIXI from 'pixi.js';
-import { Button, ScrollBox } from '@pixi/ui';
-//lkjlkj
+import * as PIXI from "pixi.js";
+import { Button, ScrollBox } from "@pixi/ui";
 class App {
-    constructor() {
-    }
+  constructor() { }
 
-    async init() {
-        await mudService();
-        startPixi();
-    }
+  async init() {
+    await mudService();
+    startPixi();
+  }
 }
 
 const app = new App();
 await app.init();
 
 function startPixi() {
-    const disableMouse = true;
+  const disableMouse = true;
 
-  let app = new PIXI.Application({ width: 1040, height: 600 });
-  console.log("app", app.view.width)
+  let app = new PIXI.Application({ width: 800, height: 600 });
+  console.log("app", app.view.width);
   document.body.appendChild(app.view);
-/*
-    const container = new PIXI.Container();
-    const button = new Button(
-    // in this case the font is in a file called 'desyrel.fnt'
 
-        //  new PIXI.BitmapText('text using a fancy font!', {
-        //     fontName: 'Desyrel',
-        //     fontSize: 35,
-        //     align: 'right',
-        // })
+  // Create a button element for fullscreen
+  const fullscreenButton = document.createElement("button");
+  fullscreenButton.textContent = "Fullscreen";
+  document.body.appendChild(fullscreenButton);
 
-
-            new PIXI.Graphics()
-                .beginFill(0xFFFFFF)
-                .drawRoundedRect(0, 0, 100, 50, 15)
-
-
-    );
-
-    button.onPress.connect(() => console.log('onPress'));
-    container.addChild(button.view);
-
-    app.stage.addChild(container);
-    */
-
-    var text = new PIXI.Text("Hello Martin Gaylord!\n Move this exciting goblin with cursor or wasd keys and update its position on the blockchain.\n Test actions with y, x, c, v", {font:"50px Arial", fill:"red"});
-    app.stage.addChild(text);
-
+  var text = new PIXI.Text(
+    "Swash Buckler",
+    { fontSize: "25px", fontFamily: "Roboto" ,fill: "brown" }
+  );
+  app.stage.addChild(text);
 
   // Magically load the PNG asynchronously
-  let sprite = PIXI.Sprite.from('assets/goblin-gaylord.png');
-    sprite.position.set(0, 100);
-    sprite.scale.set(0.5);
-    //sprite.tint = 0xFF0000;
-    sprite.acceleration = new PIXI.Point(0); // only used for mouse
-    sprite.mass = 1;
+  let sprite = PIXI.Sprite.from("assets/goblin-gaylord.png");
+  sprite.position.set(app.view.width / 2 - sprite.width / 2, app.view.height / 2 - sprite.height / 2);
 
-    // Options for how objects interact
-    // How fast the red square moves
-    const movementSpeed = 0.05;
+  sprite.scale.set(0.25);
+  sprite.anchor.set(0.5);
+  sprite.position.set(app.view.width / 2, app.view.height / 2);
+  //sprite.tint = 0xFF0000;
+  sprite.acceleration = new PIXI.Point(0); // only used for mouse
+  sprite.mass = 1;
 
+  // Options for how objects interact
+  // How fast the red square moves
+  const movementSpeed = 0.05;
 
-    app.stage.interactive = true;
-    app.stage.hitArea = app.screen;
+  app.stage.interactive = true;
+  app.stage.hitArea = app.screen;
 
-    // KEYBOARD START
-    // Set the width and height of our boxes
-    const boxWidth = app.view.width / 10;
-    const boxHeight = app.view.height / 10;
-    function onKeyDown(key) {
-        console.log("keydown", key);
-        // W Key is 87
-        // Up arrow is 87
-        if (key.keyCode === 87 || key.keyCode === 38) {
-            // If the W key or the Up arrow is pressed, move the player up.
-            if (sprite.position.y != 0) {
-                // Don't move up if the player is at the top of the stage
-                sprite.position.y -= boxHeight;
-            }
-        }
-        // S Key is 83
-        // Down arrow is 40
-        if (key.keyCode === 83 || key.keyCode === 40) {
-            // If the S key or the Down arrow is pressed, move the player down.
-            if (sprite.position.y != app.view.height - boxHeight) {
-                // Don't move down if the player is at the bottom of the stage
-                sprite.position.y += boxHeight;
-            }
-        }
-
-        // A Key is 65
-        // Left arrow is 37
-        if (key.keyCode === 65 || key.keyCode === 37) {
-            // If the A key or the Left arrow is pressed, move the player to the left.
-            if (sprite.position.x != 0) {
-                // Don't move to the left if the player is at the left side of the stage
-                sprite.position.x -= boxWidth;
-            }
-        }
-
-        // D Key is 68
-        // Right arrow is 39
-        if (key.keyCode === 68 || key.keyCode === 39) {
-            // If the D key or the Right arrow is pressed, move the player to the right.
-            if (sprite.position.x != app.view.width - boxWidth) {
-                // Don't move to the right if the player is at the right side of the stage
-                sprite.position.x += boxWidth;
-            }
-        }
-
-        // action buttons
-
-        // Y Key is 89
-        if (key.keyCode === 89 ) {
-            alert("soft Fight call hurt 20")
-            window.hurt(20)
-        }
-        // X key is 88
-        if (key.keyCode === 88 ) {
-            alert("hard Fight call hurt 50")
-            window.hurt(50)
-        }
-        // C key is 67
-        if (key.keyCode === 67 ) {
-            alert("counter attack")
-        }
-        // V key is 86
-        if (key.keyCode === 86 ) {
-            alert("special ability")
-        }
-
-        // move to gameloop
-        window.setPosition(Math.round(sprite.x), Math.round(sprite.y));
-
-
-
+  // KEYBOARD START
+  // Set the width and height of our boxes
+  const boxWidth = app.view.width / 10;
+  const boxHeight = app.view.height / 10;
+  function onKeyDown(key) {
+    console.log("keydown", key);
+    // W Key is 87
+    // Up arrow is 87
+    if (key.keyCode === 87 || key.keyCode === 38) {
+      // If the W key or the Up arrow is pressed, move the player up.
+      if (sprite.position.y != 0) {
+        // Don't move up if the player is at the top of the stage
+        sprite.position.y -= boxHeight;
+      }
     }
-    // Add the 'keydown' event listener to our document
-    document.addEventListener('keydown', onKeyDown);
-    //KEYBOARD END
+    // S Key is 83
+    // Down arrow is 40
+    if (key.keyCode === 83 || key.keyCode === 40) {
+      // If the S key or the Down arrow is pressed, move the player down.
+      if (sprite.position.y != app.view.height - boxHeight) {
+        // Don't move down if the player is at the bottom of the stage
+        sprite.position.y += boxHeight;
+      }
+    }
 
-    // mouse events
-    const mouseCoords = { x: 0, y: 0 };
-    app.stage.on('mousemove', (event) => {
-        mouseCoords.x = event.global.x;
-        mouseCoords.y = event.global.y;
-    });
-    // mouse events end
+    // A Key is 65
+    // Left arrow is 37
+    if (key.keyCode === 65 || key.keyCode === 37) {
+      // If the A key or the Left arrow is pressed, move the player to the left.
+      if (sprite.position.x != 0) {
+        // Don't move to the left if the player is at the left side of the stage
+        sprite.position.x -= boxWidth;
+      }
+    }
 
-    // Listen for animate update
-    app.ticker.add((delta) => {
+    // D Key is 68
+    // Right arrow is 39
+    if (key.keyCode === 68 || key.keyCode === 39) {
+      // If the D key or the Right arrow is pressed, move the player to the right.
+      if (sprite.position.x != app.view.width - boxWidth) {
+        // Don't move to the right if the player is at the right side of the stage
+        sprite.position.x += boxWidth;
+      }
+    }
 
+    // action buttons
 
-        if(!disableMouse) {
-            // Applied deacceleration for both squares, done by reducing the
-            // acceleration by 0.01% of the acceleration every loop
-            sprite.acceleration.set(sprite.acceleration.x * 0.99, sprite.acceleration.y * 0.99);
+    // Y Key is 89
+    if (key.keyCode === 89) {
+      alert("soft Fight call hurt 20");
+      window.hurt(20);
+    }
+    // X key is 88
+    if (key.keyCode === 88) {
+      alert("hard Fight call hurt 50");
+      window.hurt(50);
+    }
+    // C key is 67
+    if (key.keyCode === 67) {
+      alert("counter attack");
+    }
+    // V key is 86
+    if (key.keyCode === 86) {
+      alert("special ability");
+    }
 
-            // If the mouse is off screen, then don't update any further
-            if (app.screen.width > mouseCoords.x || mouseCoords.x > 0
-                || app.screen.height > mouseCoords.y || mouseCoords.y > 0) {
-                // Get the red square's center point
-                const redSquareCenterPosition = new PIXI.Point(
-                    sprite.x + (sprite.width * 0.5),
-                    sprite.y + (sprite.height * 0.5),
-                );
+    // move to gameloop
+    window.setPosition(Math.round(sprite.x), Math.round(sprite.y));
+  }
+  // Add the 'keydown' event listener to our document
+  document.addEventListener("keydown", onKeyDown);
+  //KEYBOARD END
 
-                // Calculate the direction vector between the mouse pointer and
-                // the red square
-                const toMouseDirection = new PIXI.Point(
-                    mouseCoords.x - redSquareCenterPosition.x,
-                    mouseCoords.y - redSquareCenterPosition.y,
-                );
+  // mouse events
+  const mouseCoords = { x: 0, y: 0 };
+  app.stage.on("mousemove", (event) => {
+    mouseCoords.x = event.global.x;
+    mouseCoords.y = event.global.y;
+  });
+  // mouse events end
 
-                // Use the above to figure out the angle that direction has
-                const angleToMouse = Math.atan2(
-                    toMouseDirection.y,
-                    toMouseDirection.x,
-                );
+  // Listen for animate update
+  app.ticker.add((delta) => {
+    if (!disableMouse) {
+      // Applied deacceleration for both squares, done by reducing the
+      // acceleration by 0.01% of the acceleration every loop
+      sprite.acceleration.set(
+        sprite.acceleration.x * 0.99,
+        sprite.acceleration.y * 0.99
+      );
 
-                // Figure out the speed the square should be travelling by, as a
-                // function of how far away from the mouse pointer the red square is
-                const distMouseRedSquare = distanceBetweenTwoPoints(
-                    mouseCoords,
-                    redSquareCenterPosition,
-                );
-                const redSpeed = distMouseRedSquare * movementSpeed;
+      // If the mouse is off screen, then don't update any further
+      if (
+        app.screen.width > mouseCoords.x ||
+        mouseCoords.x > 0 ||
+        app.screen.height > mouseCoords.y ||
+        mouseCoords.y > 0
+      ) {
+        // Get the red square's center point
+        const redSquareCenterPosition = new PIXI.Point(
+          sprite.x + sprite.width * 0.5,
+          sprite.y + sprite.height * 0.5
+        );
 
-                // Calculate the acceleration of the red square
-                sprite.acceleration.set(
-                    Math.cos(angleToMouse) * redSpeed,
-                    Math.sin(angleToMouse) * redSpeed,
-                );
+        // Calculate the direction vector between the mouse pointer and
+        // the red square
+        const toMouseDirection = new PIXI.Point(
+          mouseCoords.x - redSquareCenterPosition.x,
+          mouseCoords.y - redSquareCenterPosition.y
+        );
 
-                // Calculate the distance between two given points
-                function distanceBetweenTwoPoints(p1, p2) {
-                    const a = p1.x - p2.x;
-                    const b = p1.y - p2.y;
+        // Use the above to figure out the angle that direction has
+        const angleToMouse = Math.atan2(toMouseDirection.y, toMouseDirection.x);
 
-                    return Math.hypot(a, b);
-                }
-            }
+        // Figure out the speed the square should be travelling by, as a
+        // function of how far away from the mouse pointer the red square is
+        const distMouseRedSquare = distanceBetweenTwoPoints(
+          mouseCoords,
+          redSquareCenterPosition
+        );
+        const redSpeed = distMouseRedSquare * movementSpeed;
 
-            // Add grantlhuber
-            let oldCoords = { x: sprite.x, y: sprite.y };
+        // Calculate the acceleration of the red square
+        sprite.acceleration.set(
+          Math.cos(angleToMouse) * redSpeed,
+          Math.sin(angleToMouse) * redSpeed
+        );
 
-            sprite.x += sprite.acceleration.x * delta;
-            sprite.y += sprite.acceleration.y * delta;
+        // Calculate the distance between two given points
+        function distanceBetweenTwoPoints(p1, p2) {
+          const a = p1.x - p2.x;
+          const b = p1.y - p2.y;
 
-            // Add grantlhuber
-            if(Math.round(oldCoords.x) != Math.round(sprite.x) || Math.round(oldCoords.y) != Math.round(sprite.y)) {
-                window.setPosition(Math.round(sprite.x), Math.round(sprite.y));
-            }
+          return Math.hypot(a, b);
         }
+      }
 
+      // Add grantlhuber
+      let oldCoords = { x: sprite.x, y: sprite.y };
 
+      sprite.x += sprite.acceleration.x * delta;
+      sprite.y += sprite.acceleration.y * delta;
 
-    });
+      // Add grantlhuber
+      if (
+        Math.round(oldCoords.x) != Math.round(sprite.x) ||
+        Math.round(oldCoords.y) != Math.round(sprite.y)
+      ) {
+        window.setPosition(Math.round(sprite.x), Math.round(sprite.y));
+      }
+    }
+  });
 
+  // Function to toggle fullscreen mode
+  function toggleFullscreen() {
+    if (document.fullscreenElement) {
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+        // Firefox
+        document.mozCancelFullScreen();
+      } else if (document.webkitExitFullscreen) {
+        // Chrome, Safari and Opera
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        // IE/Edge
+        document.msExitFullscreen();
+      }
+    } else {
+      // Enter fullscreen
+      if (app.view.requestFullscreen) {
+        app.view.requestFullscreen();
+      } else if (app.view.mozRequestFullScreen) {
+        // Firefox
+        app.view.mozRequestFullScreen();
+      } else if (app.view.webkitRequestFullscreen) {
+        // Chrome, Safari and Opera
+        app.view.webkitRequestFullscreen();
+      } else if (app.view.msRequestFullscreen) {
+        // IE/Edge
+        app.view.msRequestFullscreen();
+      }
+    }
+  }
+
+  // Attach the toggleFullscreen function to the button's click event
+  fullscreenButton.addEventListener("click", toggleFullscreen);
 
   app.stage.addChild(sprite);
 
-
-
-/*
+  /*
      // Based somewhat on this article by Spicy Yoghurt
      // URL for further reading: https://spicyyoghurt.com/tutorials/html5-javascript-game-development/collision-detection-physics
      const app = new PIXI.Application({ background: '#111' });
@@ -419,4 +430,3 @@ function startPixi() {
 
  */
 }
-
