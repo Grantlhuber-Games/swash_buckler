@@ -13,4 +13,8 @@ interface IHealthSystem {
   function heal(uint32 addVal) external returns (uint32);
 
   function hurt(uint32 redVal) external returns (uint32);
+
+  function isDead() external view returns (bool);
+
+  function isAlive() external view returns (bool);
 }

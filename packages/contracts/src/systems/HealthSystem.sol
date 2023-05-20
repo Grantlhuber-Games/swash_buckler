@@ -14,7 +14,7 @@ contract HealthSystem is System {
     * @dev refill entity
     * @return new health value
     */
-  function refill() public returns (uint32) {
+  function refill() public requireIsAlive returns (uint32) {
     Health.set(MAX_HEALTH);
     return MAX_HEALTH;
   }
@@ -23,7 +23,7 @@ contract HealthSystem is System {
     * @dev revive entity
     * @return new health value
     */
-  function revive() public returns (uint32) {
+  function revive() public requireIsDead returns (uint32) {
     uint32 newValue = (MAX_HEALTH * REVIVE_HEALTH_PERCENTAGE / 100);
     Health.set(newValue);
     return newValue;
@@ -33,7 +33,7 @@ contract HealthSystem is System {
     * @dev kill entity
     * @return new health value
     */
-  function kill() public returns (uint32) {
+  function kill() public requireIsAlive returns (uint32) {
     Health.set(MIN_HEALTH);
     return MIN_HEALTH;
   }
@@ -43,7 +43,7 @@ contract HealthSystem is System {
     * @param addVal amount to increment
     * @return new health value
     */
-  function heal(uint32 addVal) public returns (uint32){
+  function heal(uint32 addVal) public requireIsAlive returns (uint32){
     uint32 health = Health.get();
     uint32 newValue = health + addVal;
     if(newValue > MAX_HEALTH) {
@@ -58,15 +58,15 @@ contract HealthSystem is System {
     * @param redVal amount to decrement
     * @return new health value
     */
-  function hurt(uint32 redVal) public returns (uint32){
+  function hurt(uint32 redVal) public requireIsAlive returns (uint32){
     uint32 health = Health.get();
     uint32 newValue = 0;
     // uint so no underflow
     if(redVal < health) {
-      redVal = health - redVal;
+      newValue = health - redVal;
     }
     // FIXME 0 is null in solidity
-    if(redVal < MIN_HEALTH) {
+    if(newValue < MIN_HEALTH) {
       newValue = MIN_HEALTH;
     }
     Health.set(newValue);
@@ -74,9 +74,30 @@ contract HealthSystem is System {
   }
 
   /********************************************************************************************/
+  /*                                       UTILITY FUNCTIONS                                  */
+  /********************************************************************************************/
+  // TODO add entity id bytes32 playerKey
+  function isDead() public view returns (bool) {
+      return Health.get() == MIN_HEALTH;
+  }
+  function isAlive() public view returns (bool) {
+    return Health.get() > MIN_HEALTH;
+  }
+
+  /********************************************************************************************/
   /*                                       FUNCTION MODIFIERS                                 */
   /********************************************************************************************/
-
+  // TODO add entity id bytes32 playerKey
+  modifier requireIsDead()
+  {
+    require(isDead(), "Player is not dead... yet.");
+    _;
+  }
+  modifier requireIsAlive()
+  {
+    require(isAlive(), "Player is dead. You can only revive.");
+    _;
+  }
 
 
 }

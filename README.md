@@ -27,6 +27,9 @@ VITE_CHAIN_ID=31337
   - https://www.pixijselementals.com/
   
 
+- Assets
+  - https://pixabay.com/illustrations/troll-kobold-fantasy-ears-3331618/
+
 # Issues Mud
 
 ## Different components, systems e.g. IncrementSystem has function increment and HealthSystem has function increments - not working

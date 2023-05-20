@@ -7,7 +7,21 @@
   </head>
   <body>
     <script type="module" src="/src/index.ts"></script>
-    <div>Counter: <span id="counter">0</span></div>
-    <button onclick="window.increment()">Increment</button>
+    <div>
+      <div>Counter: <span id="counter">0</span></div>
+      <button onclick="window.increment()">Increment</button>
+
+      <div>Position: <span id="position"></span></div>
+      <div>Health: <span id="health"> </span> / 100</div>
+      <button onclick="window.refill()">refill</button>
+      <button onclick="window.kill()">kill</button>
+      <button onclick="window.revive()">revive</button>
+      <button onclick="window.heal(20)">heal 20</button>
+      <button onclick="window.hurt(5)">hurt 5</button>
+
+    </div>
+
+
+
   </body>
 </html>

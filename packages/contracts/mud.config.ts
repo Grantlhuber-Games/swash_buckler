@@ -1,5 +1,5 @@
 import { mudConfig } from "@latticexyz/world/register";
-import { model } from "./src/models/Health";
+//import { model } from "./src/models/Health";
 export default mudConfig({
   tables: {
     Health: {

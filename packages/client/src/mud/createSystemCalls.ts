@@ -7,7 +7,7 @@ export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
 export function createSystemCalls(
   { worldSend, txReduced$, singletonEntity }: SetupNetworkResult,
-  { Counter, Position }: ClientComponents
+  { Counter, Position, Health }: ClientComponents
 ) {
   const increment = async () => {
     const tx = await worldSend("increment", []);
@@ -21,9 +21,44 @@ export function createSystemCalls(
     return getComponentValue(Position, singletonEntity);
   };
 
+  // Health system calls
+  const hurt = async (x: number) => {
+    const tx = await worldSend("hurt", [x]);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+    return getComponentValue(Health, singletonEntity);
+  };
+
+  const heal = async (x: number) => {
+    const tx = await worldSend("heal", [x]);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+    return getComponentValue(Health, singletonEntity);
+  };
+
+  const refill = async () => {
+    const tx = await worldSend("refill", []);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+    return getComponentValue(Health, singletonEntity);
+  };
+
+  const revive = async () => {
+    const tx = await worldSend("revive", []);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+    return getComponentValue(Health, singletonEntity);
+  };
+
+  const kill = async () => {
+    const tx = await worldSend("kill", []);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+    return getComponentValue(Health, singletonEntity);
+  };
 
   return {
     increment,
-    setPosition
+    setPosition,
+    hurt,
+    heal,
+    kill,
+    revive,
+    refill
   };
 }

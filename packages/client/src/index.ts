@@ -119,11 +119,13 @@ function startPixi() {
 
         // Y Key is 89
         if (key.keyCode === 89 ) {
-            alert("soft Fight")
+            alert("soft Fight call hurt 20")
+            window.hurt(20)
         }
         // X key is 88
         if (key.keyCode === 88 ) {
-            alert("hard Fight")
+            alert("hard Fight call hurt 50")
+            window.hurt(50)
         }
         // C key is 67
         if (key.keyCode === 67 ) {
