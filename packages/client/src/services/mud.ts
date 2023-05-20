@@ -8,6 +8,8 @@ export default async function setupMud() {
         systemCalls: { increment, setPosition },
     } = await setup();
 
+    // alternative you can get
+
     // Components expose a stream that triggers when the component is updated.
     components.Counter.update$.subscribe((update: any) => {
         const [nextValue, prevValue] = update.value;

@@ -55,6 +55,9 @@ importers:
       '@latticexyz/world':
         specifier: 2.0.0-alpha.1.175+641d0d35
         version: 2.0.0-alpha.1.175(typescript@5.0.4)
+      '@pixi/ui':
+        specifier: ^0.7.0
+        version: 0.7.0(@pixi/core@7.2.4)(@pixi/display@7.2.4)(@pixi/events@7.2.4)(@pixi/graphics@7.2.4)(@pixi/sprite@7.2.4)(@pixi/text-bitmap@7.2.4)(@pixi/text-html@7.2.4)(@pixi/text@7.2.4)
       '@wagmi/chains':
         specifier: ^0.2.22
         version: 0.2.22(typescript@5.0.4)
@@ -1425,6 +1428,31 @@ packages:
       '@pixi/extensions': 7.2.4
       '@pixi/settings': 7.2.4
       '@pixi/utils': 7.2.4
+    dev: false
+
+  /@pixi/ui@0.7.0(@pixi/core@7.2.4)(@pixi/display@7.2.4)(@pixi/events@7.2.4)(@pixi/graphics@7.2.4)(@pixi/sprite@7.2.4)(@pixi/text-bitmap@7.2.4)(@pixi/text-html@7.2.4)(@pixi/text@7.2.4):
+    resolution: {integrity: sha512-zKTd5OH8Xi1Ap4jofjuvW6OXGNfZ603+2yySuPKjLEOTZ8QYf1GKbA1iDlRI1S7EZEmfk1SNF3/mQkqOMs/nrw==}
+    peerDependencies:
+      '@pixi/core': ^7.2.3
+      '@pixi/display': ^7.2.3
+      '@pixi/events': ^7.2.3
+      '@pixi/graphics': ^7.2.3
+      '@pixi/sprite': ^7.2.3
+      '@pixi/text': ^7.2.3
+      '@pixi/text-bitmap': ^7.2.3
+      '@pixi/text-html': ^7.2.3
+    dependencies:
+      '@pixi/core': 7.2.4
+      '@pixi/display': 7.2.4(@pixi/core@7.2.4)
+      '@pixi/events': 7.2.4(@pixi/core@7.2.4)(@pixi/display@7.2.4)
+      '@pixi/graphics': 7.2.4(@pixi/core@7.2.4)(@pixi/display@7.2.4)(@pixi/sprite@7.2.4)
+      '@pixi/sprite': 7.2.4(@pixi/core@7.2.4)(@pixi/display@7.2.4)
+      '@pixi/text': 7.2.4(@pixi/core@7.2.4)(@pixi/sprite@7.2.4)
+      '@pixi/text-bitmap': 7.2.4(@pixi/assets@7.2.4)(@pixi/core@7.2.4)(@pixi/display@7.2.4)(@pixi/mesh@7.2.4)(@pixi/text@7.2.4)
+      '@pixi/text-html': 7.2.4(@pixi/core@7.2.4)(@pixi/display@7.2.4)(@pixi/sprite@7.2.4)(@pixi/text@7.2.4)
+      ts-mixer: 6.0.3
+      tweedle.js: 2.1.0
+      typed-signals: 2.5.0
     dev: false
 
   /@pixi/utils@7.2.4:
@@ -3976,6 +4004,10 @@ packages:
       typescript: 5.0.4
     dev: true
 
+  /ts-mixer@6.0.3:
+    resolution: {integrity: sha512-k43M7uCG1AkTyxgnmI5MPwKoUvS/bRvLvUb7+Pgpdlmok8AoqmUaZxUUw8zKM5B1lqZrt41GjYgnvAi0fppqgQ==}
+    dev: false
+
   /tslib@1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
     dev: true
@@ -4008,6 +4040,10 @@ packages:
       md5: 2.3.0
       react: 18.2.0
       uuid: 9.0.0
+    dev: false
+
+  /tweedle.js@2.1.0:
+    resolution: {integrity: sha512-0ReQgVjepoZkE6t0upWNgCRbplHkQJQYk1LStXugwSR728GLFmGDRuaQJlxeC/iBlxud6+P1RdODjaO25vHAqw==}
     dev: false
 
   /type-check@0.3.2:
@@ -4073,6 +4109,10 @@ packages:
       - jest
       - supports-color
     dev: true
+
+  /typed-signals@2.5.0:
+    resolution: {integrity: sha512-m9lHc3eBCJerXYdx+G0uWZihyUXdqTzzgOdqiDDsoUo75WjhFJH6vP5/6w/xhyu04zoxHUqgYhf9FEt85dk/Ng==}
+    dev: false
 
   /typescript@4.9.5:
     resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}

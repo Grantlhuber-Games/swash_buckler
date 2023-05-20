@@ -1,7 +1,14 @@
 import { mudConfig } from "@latticexyz/world/register";
-
+import { model } from "./src/models/Health";
 export default mudConfig({
   tables: {
+    Health: {
+      keySchema: {},
+      schema: {
+        health: "uint32"
+      }
+    },
+    //model.modelSchema,
     Position: {
       keySchema: {},
       schema: {
@@ -13,5 +20,5 @@ export default mudConfig({
       keySchema: {},
       schema: "uint32",
     }
-  },
+  }
 });

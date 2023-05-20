@@ -5,6 +5,21 @@ import { defineComponent, Type as RecsType, World } from "@latticexyz/recs";
 
 export function defineContractComponents(world: World) {
   return {
+    Health: (() => {
+      const tableId = new TableId("", "Health");
+      return defineComponent(
+        world,
+        {
+          health: RecsType.Number,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
     Position: (() => {
       const tableId = new TableId("", "Position");
       return defineComponent(

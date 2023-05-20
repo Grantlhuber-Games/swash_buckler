@@ -21,6 +21,7 @@
     "@latticexyz/std-client": "2.0.0-alpha.1.175+641d0d35",
     "@latticexyz/utils": "2.0.0-alpha.1.175+641d0d35",
     "@latticexyz/world": "2.0.0-alpha.1.175+641d0d35",
+    "@pixi/ui": "^0.7.0",
     "@wagmi/chains": "^0.2.22",
     "contracts": "workspace:*",
     "ethers": "^5.7.2",
