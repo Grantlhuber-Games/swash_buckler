@@ -1,5 +1,6 @@
 import mudService from "./services/mud";
 import * as PIXI from "pixi.js";
+import { Loader } from "@pixi/loaders";
 import { Button, ScrollBox } from "@pixi/ui";
 
 // Setup of the game withing the window
@@ -8,19 +9,26 @@ class App {
 
   async init() {
     await mudService();
-    startPixi();
+    startGame();
   }
 }
 
 const app = new App(); // this is the game
 await app.init(); // this starts the game
 
-function startPixi() { // the name of this function is misleading, it should be called startGame
+// This is the game loop
+function startGame() { // the name of this function is misleading, it should be called startGame
   const disableMouse = true; // disable mouse movement so that the game can be played with keyboard only
 
   let app = new PIXI.Application({ width: 800, height: 600 }); // this is the game window
   // console.log("app", app.view.width);
   document.body.appendChild(app.view); // app.view is the canvas element currently being used. It contains the game
+
+ // Create a sprite for the background image
+ const background = PIXI.Sprite.from("assets/background.png");
+ background.width = app.view.width;
+ background.height = app.view.height;
+ app.stage.addChild(background);
 
   // Create a button element for fullscreen
   const fullscreenButton = document.createElement("button");
@@ -68,7 +76,7 @@ function startPixi() { // the name of this function is misleading, it should be 
   const tableHeight = 450;
 
   const tableBackground = new PIXI.Graphics();
-  tableBackground.beginFill(0x000000);
+  // tableBackground.beginFill(0x000000); // transparent would be
   tableBackground.drawRect(0, 0, tableWidth, tableHeight);
   tableBackground.endFill();
   table.addChildAt(tableBackground, 0);
