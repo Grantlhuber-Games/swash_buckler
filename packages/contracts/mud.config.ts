@@ -1,24 +1,18 @@
 import { mudConfig } from "@latticexyz/world/register";
-//import { model } from "./src/models/Health";
+
+import AvatarModel from "./src/models/Avatar.mjs";
+import HealthModel from "./src/models/Health.mjs";
+import StaminaModel from "./src/models/Stamina.mjs";
+import PositionModel from "./src/models/Position.mjs";
+import CounterModel from "./src/models/Counter.mjs";
+
 export default mudConfig({
   tables: {
-    Health: {
-      keySchema: {},
-      schema: {
-        health: "uint32"
-      }
-    },
-    //model.modelSchema,
-    Position: {
-      keySchema: {},
-      schema: {
-        x: "int32",
-        y: "int32"
-      }
-    },
-    Counter: {
-      keySchema: {},
-      schema: "uint32",
-    }
+    // explicitly define an avatar
+    Avatar: AvatarModel.modelSchema,
+    Position: PositionModel.modelSchema,
+    Health: HealthModel.modelSchema,
+    Stamina: StaminaModel.modelSchema,
+    Counter: CounterModel.modelSchema
   }
 });
