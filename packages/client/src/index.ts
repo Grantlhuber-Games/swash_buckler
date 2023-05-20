@@ -1,6 +1,8 @@
 import mudService from "./services/mud";
 import * as PIXI from "pixi.js";
 import { Button, ScrollBox } from "@pixi/ui";
+
+// Setup of the game withing the window
 class App {
   constructor() { }
 
@@ -10,31 +12,74 @@ class App {
   }
 }
 
-const app = new App();
-await app.init();
+const app = new App(); // this is the game
+await app.init(); // this starts the game
 
-function startPixi() {
-  const disableMouse = true;
+function startPixi() { // the name of this function is misleading, it should be called startGame
+  const disableMouse = true; // disable mouse movement so that the game can be played with keyboard only
 
-  let app = new PIXI.Application({ width: 800, height: 600 });
-  console.log("app", app.view.width);
-  document.body.appendChild(app.view);
+  let app = new PIXI.Application({ width: 800, height: 600 }); // this is the game window
+  // console.log("app", app.view.width);
+  document.body.appendChild(app.view); // app.view is the canvas element currently being used. It contains the game
 
   // Create a button element for fullscreen
   const fullscreenButton = document.createElement("button");
   fullscreenButton.textContent = "Fullscreen";
   document.body.appendChild(fullscreenButton);
 
-  var text = new PIXI.Text(
-    "Swash Buckler",
-    { fontSize: "25px", fontFamily: "Roboto" ,fill: "brown" }
-  );
-  app.stage.addChild(text);
+  // for styling the texta
+  const textStyle = {
+    fontSize: "40px",
+    fontWeight: "bold",
+    fontFamily: "Arial",
+    fill: "white",
+  };
 
+  var text = new PIXI.Text(
+    "Swash Buckler",textStyle
+  );
+  app.stage.addChild(text); // adding to app.stage makes it appear on the screen
+
+  // table to debug print the stats of an avatar
+  const table = new PIXI.Container();
+  app.stage.addChild(table);
+
+
+  var healthValue = 200;
+  var intentValue = "none";
+  var buffValue = "none";
+
+  const healthText = new PIXI.Text(`Health: ${healthValue}`, textStyle);
+  table.addChild(healthText);
+
+  const intentText = new PIXI.Text(`Intent: ${intentValue}`, textStyle);
+  intentText.position.y = 50;
+  table.addChild(intentText);
+
+  const buffText = new PIXI.Text(`Buff: ${buffValue} `, textStyle);
+  buffText.position.y = 100;
+  table.addChild(buffText);
+
+  const tableWidth = Math.max( //math.max makes sure the table is wide enough to fit all the text
+    healthText.width,
+    intentText.width,
+    buffText.width
+  );
+  const tableHeight = 450;
+
+  const tableBackground = new PIXI.Graphics();
+  tableBackground.beginFill(0x000000);
+  tableBackground.drawRect(0, 0, tableWidth, tableHeight);
+  tableBackground.endFill();
+  table.addChildAt(tableBackground, 0);
+
+  table.pivot.set(tableWidth / 2, tableHeight / 2); //this is the center of the table
+  table.position.set(app.view.width / 2, app.view.height / 2); // this is the center of the screen
+  
   // Magically load the PNG asynchronously
   let sprite = PIXI.Sprite.from("assets/goblin-gaylord.png");
   sprite.position.set(app.view.width / 2 - sprite.width / 2, app.view.height / 2 - sprite.height / 2);
-
+  
   sprite.scale.set(0.25);
   sprite.anchor.set(0.5);
   sprite.position.set(app.view.width / 2, app.view.height / 2);
@@ -42,6 +87,11 @@ function startPixi() {
   sprite.acceleration = new PIXI.Point(0); // only used for mouse
   sprite.mass = 1;
 
+  const avatarBounds = sprite.getBounds();
+  table.position.y = avatarBounds.y + avatarBounds.height / 2;
+  
+  sprite.addChild(table); // adding to app.stage makes it appear on the screen
+  
   // Options for how objects interact
   // How fast the red square moves
   const movementSpeed = 0.05;
@@ -129,6 +179,12 @@ function startPixi() {
     mouseCoords.y = event.global.y;
   });
   // mouse events end
+
+    // Toggle the visibility of the table on click
+    sprite.interactive = true;
+    sprite.on("click", () => {
+      table.visible = !table.visible;
+    });
 
   // Listen for animate update
   app.ticker.add((delta) => {
@@ -239,194 +295,4 @@ function startPixi() {
   fullscreenButton.addEventListener("click", toggleFullscreen);
 
   app.stage.addChild(sprite);
-
-  /*
-     // Based somewhat on this article by Spicy Yoghurt
-     // URL for further reading: https://spicyyoghurt.com/tutorials/html5-javascript-game-development/collision-detection-physics
-     const app = new PIXI.Application({ background: '#111' });
-     document.body.appendChild(app.view);
-
-     // Options for how objects interact
-     // How fast the red square moves
-     const movementSpeed = 0.05;
-
-     // Strength of the impulse push between two objects
-     const impulsePower = 5;
-
-     // Test For Hit
-     // A basic AABB check between two different squares
-     function testForAABB(object1, object2) {
-       const bounds1 = object1.getBounds();
-       const bounds2 = object2.getBounds();
-
-       return bounds1.x < bounds2.x + bounds2.width
-               && bounds1.x + bounds1.width > bounds2.x
-               && bounds1.y < bounds2.y + bounds2.height
-               && bounds1.y + bounds1.height > bounds2.y;
-     }
-
-     // Calculates the results of a collision, allowing us to give an impulse that
-     // shoves objects apart
-     function collisionResponse(object1, object2) {
-       if (!object1 || !object2) {
-         return new PIXI.Point(0);
-       }
-
-       const vCollision = new PIXI.Point(
-               object2.x - object1.x,
-               object2.y - object1.y,
-       );
-
-       const distance = Math.sqrt(
-               (object2.x - object1.x) * (object2.x - object1.x)
-               + (object2.y - object1.y) * (object2.y - object1.y),
-       );
-
-       const vCollisionNorm = new PIXI.Point(
-               vCollision.x / distance,
-               vCollision.y / distance,
-       );
-
-       const vRelativeVelocity = new PIXI.Point(
-               object1.acceleration.x - object2.acceleration.x,
-               object1.acceleration.y - object2.acceleration.y,
-       );
-
-       const speed = vRelativeVelocity.x * vCollisionNorm.x
-               + vRelativeVelocity.y * vCollisionNorm.y;
-
-       const impulse = impulsePower * speed / (object1.mass + object2.mass);
-
-       return new PIXI.Point(
-               impulse * vCollisionNorm.x,
-               impulse * vCollisionNorm.y,
-       );
-     }
-
-     // Calculate the distance between two given points
-     function distanceBetweenTwoPoints(p1, p2) {
-       const a = p1.x - p2.x;
-       const b = p1.y - p2.y;
-
-       return Math.hypot(a, b);
-     }
-
-     // The green square we will knock about
-     const greenSquare = new PIXI.Sprite(PIXI.Texture.WHITE);
-     greenSquare.position.set((app.screen.width - 100) / 2, (app.screen.height - 100) / 2);
-     greenSquare.width = 100;
-     greenSquare.height = 100;
-     greenSquare.tint = 0x00FF00;
-     greenSquare.acceleration = new PIXI.Point(0);
-     greenSquare.mass = 3;
-
-     // The square you move around
-     const redSquare = new PIXI.Sprite(PIXI.Texture.WHITE);
-     redSquare.position.set(0, 0);
-     redSquare.width = 100;
-     redSquare.height = 100;
-     redSquare.tint = 0xFF0000;
-     redSquare.acceleration = new PIXI.Point(0);
-     redSquare.mass = 1;
-
-     const mouseCoords = { x: 0, y: 0 };
-     app.stage.interactive = true;
-     app.stage.hitArea = app.screen;
-     app.stage.on('mousemove', (event) => {
-       mouseCoords.x = event.global.x;
-       mouseCoords.y = event.global.y;
-       console.log("mouseCoords", mouseCoords);
-
-       window.setPosition(Math.round(mouseCoords.x), Math.round(mouseCoords.y));
-     });
-
-     // Listen for animate update
-     app.ticker.add((delta) => {
-
-       // Applied deacceleration for both squares, done by reducing the
-       // acceleration by 0.01% of the acceleration every loop
-       redSquare.acceleration.set(redSquare.acceleration.x * 0.99, redSquare.acceleration.y * 0.99);
-       greenSquare.acceleration.set(greenSquare.acceleration.x * 0.99, greenSquare.acceleration.y * 0.99);
-
-       // Check whether the green square ever moves off the screen
-       // If so, reverse acceleration in that direction
-       if (greenSquare.x < 0 || greenSquare.x > (app.screen.width - 100)) {
-         greenSquare.acceleration.x = -greenSquare.acceleration.x;
-       }
-
-       if (greenSquare.y < 0 || greenSquare.y > (app.screen.height - 100)) {
-         greenSquare.acceleration.y = -greenSquare.acceleration.y;
-       }
-
-       // If the green square pops out of the cordon, it pops back into the
-       // middle
-       if ((greenSquare.x < -30 || greenSquare.x > (app.screen.width + 30))
-               || greenSquare.y < -30 || greenSquare.y > (app.screen.height + 30)) {
-         greenSquare.position.set((app.screen.width - 100) / 2, (app.screen.height - 100) / 2);
-       }
-
-       // If the mouse is off screen, then don't update any further
-       if (app.screen.width > mouseCoords.x || mouseCoords.x > 0
-               || app.screen.height > mouseCoords.y || mouseCoords.y > 0) {
-         // Get the red square's center point
-         const redSquareCenterPosition = new PIXI.Point(
-                 redSquare.x + (redSquare.width * 0.5),
-                 redSquare.y + (redSquare.height * 0.5),
-         );
-
-         // Calculate the direction vector between the mouse pointer and
-         // the red square
-         const toMouseDirection = new PIXI.Point(
-                 mouseCoords.x - redSquareCenterPosition.x,
-                 mouseCoords.y - redSquareCenterPosition.y,
-         );
-
-         // Use the above to figure out the angle that direction has
-         const angleToMouse = Math.atan2(
-                 toMouseDirection.y,
-                 toMouseDirection.x,
-         );
-
-         // Figure out the speed the square should be travelling by, as a
-         // function of how far away from the mouse pointer the red square is
-         const distMouseRedSquare = distanceBetweenTwoPoints(
-                 mouseCoords,
-                 redSquareCenterPosition,
-         );
-         const redSpeed = distMouseRedSquare * movementSpeed;
-
-         // Calculate the acceleration of the red square
-         redSquare.acceleration.set(
-                 Math.cos(angleToMouse) * redSpeed,
-                 Math.sin(angleToMouse) * redSpeed,
-         );
-       }
-
-       // If the two squares are colliding
-       if (testForAABB(greenSquare, redSquare)) {
-         // Calculate the changes in acceleration that should be made between
-         // each square as a result of the collision
-         const collisionPush = collisionResponse(greenSquare, redSquare);
-         // Set the changes in acceleration for both squares
-         redSquare.acceleration.set(
-                 (collisionPush.x * greenSquare.mass),
-                 (collisionPush.y * greenSquare.mass),
-         );
-         greenSquare.acceleration.set(
-                 -(collisionPush.x * redSquare.mass),
-                 -(collisionPush.y * redSquare.mass),
-         );
-       }
-
-       greenSquare.x += greenSquare.acceleration.x * delta;
-       greenSquare.y += greenSquare.acceleration.y * delta;
-
-       redSquare.x += redSquare.acceleration.x * delta;
-       redSquare.y += redSquare.acceleration.y * delta;
-     });
-
-     // Add to stage
-     app.stage.addChild(redSquare, greenSquare);
-
- */
 }
