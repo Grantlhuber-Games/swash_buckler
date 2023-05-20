@@ -1,7 +1,5 @@
 import mudService from "./services/mud";
 import * as PIXI from "pixi.js";
-import { Loader } from "@pixi/loaders";
-import { Button, ScrollBox } from "@pixi/ui";
 
 // Setup of the game withing the window
 class App {
@@ -20,12 +18,13 @@ await app.init(); // this starts the game
 function startGame() { // the name of this function is misleading, it should be called startGame
   const disableMouse = true; // disable mouse movement so that the game can be played with keyboard only
 
-  let app = new PIXI.Application({ width: 800, height: 600 }); // this is the game window
+  let app = new PIXI.Application({ width: 1920, height: 1080 }); // this is the game window
   // console.log("app", app.view.width);
   document.body.appendChild(app.view); // app.view is the canvas element currently being used. It contains the game
 
  // Create a sprite for the background image
- const background = PIXI.Sprite.from("assets/background.png");
+ const randomNumber = Math.floor(Math.random() * 4) + 1;
+ const background = PIXI.Sprite.from(`assets/background_0${randomNumber}.png`);
  background.width = app.view.width;
  background.height = app.view.height;
  app.stage.addChild(background);
@@ -35,7 +34,7 @@ function startGame() { // the name of this function is misleading, it should be 
   fullscreenButton.textContent = "Fullscreen";
   document.body.appendChild(fullscreenButton);
 
-  // for styling the texta
+  // for styling the texts
   const textStyle = {
     fontSize: "40px",
     fontWeight: "bold",
@@ -51,8 +50,8 @@ function startGame() { // the name of this function is misleading, it should be 
   // table to debug print the stats of an avatar
   const table = new PIXI.Container();
   app.stage.addChild(table);
-
-
+  
+  // TODO: Wire up the actual values here 
   var healthValue = 200;
   var intentValue = "none";
   var buffValue = "none";
@@ -76,27 +75,28 @@ function startGame() { // the name of this function is misleading, it should be 
   const tableHeight = 450;
 
   const tableBackground = new PIXI.Graphics();
-  // tableBackground.beginFill(0x000000); // transparent would be
   tableBackground.drawRect(0, 0, tableWidth, tableHeight);
   tableBackground.endFill();
   table.addChildAt(tableBackground, 0);
 
   table.pivot.set(tableWidth / 2, tableHeight / 2); //this is the center of the table
-  table.position.set(app.view.width / 2, app.view.height / 2); // this is the center of the screen
+  // table.position.set(app.view.width / 2, app.view.height / 3); // this is the center of the screen
   
   // Magically load the PNG asynchronously
   let sprite = PIXI.Sprite.from("assets/goblin-gaylord.png");
   sprite.position.set(app.view.width / 2 - sprite.width / 2, app.view.height / 2 - sprite.height / 2);
   
-  sprite.scale.set(0.25);
+  sprite.scale.set(1);
   sprite.anchor.set(0.5);
   sprite.position.set(app.view.width / 2, app.view.height / 2);
   //sprite.tint = 0xFF0000;
-  sprite.acceleration = new PIXI.Point(0); // only used for mouse
-  sprite.mass = 1;
+  // sprite.acceleration = new PIXI.Point(0); // only used for mouse
+  // sprite.mass = 1;
 
   const avatarBounds = sprite.getBounds();
-  table.position.y = avatarBounds.y + avatarBounds.height / 2;
+  table.scale.set(0.5);
+  table.position.y = avatarBounds.height - 80;
+  table.position.x = avatarBounds.width;
   
   sprite.addChild(table); // adding to app.stage makes it appear on the screen
   
