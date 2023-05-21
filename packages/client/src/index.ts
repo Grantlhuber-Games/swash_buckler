@@ -1,6 +1,5 @@
 import mudService from "./services/mud";
 import * as PIXI from "pixi.js";
-import * as SOUND from 'pixi-sound';
 
 // Setup of the game withing the window
 class App {
@@ -22,9 +21,6 @@ function startGame() { // the name of this function is misleading, it should be 
   let app = new PIXI.Application({ width: 1920, height: 1080 }); // this is the game window
   // console.log("app", app.view.width);
   document.body.appendChild(app.view); // app.view is the canvas element currently being used. It contains the game
-
-  // Add some sound
-  SOUND.default.add('background', 'assets/background.mp3'); //this is the background music. It will loop forever and start playing as soon as the game starts
 
  // Create a sprite for the background image
  const randomNumber = Math.floor(Math.random() * 4) + 1;
@@ -56,7 +52,7 @@ function startGame() { // the name of this function is misleading, it should be 
   app.stage.addChild(table);
   
   // TODO: Wire up the actual values here 
-  var healthValue = 200;
+  var healthValue = "none";
   var intentValue = "none";
   var buffValue = "none";
 
@@ -93,11 +89,15 @@ function startGame() { // the name of this function is misleading, it should be 
   sprite.scale.set(1);
   sprite.anchor.set(0.5);
   sprite.position.set(app.view.width / 2, app.view.height / 2);
-  //sprite.tint = 0xFF0000;
-  // sprite.acceleration = new PIXI.Point(0); // only used for mouse
-  // sprite.mass = 1;
 
+  // Debugging bounding box
+  const boundingBox = new PIXI.Graphics();
+  app.stage.addChild(boundingBox);
   const avatarBounds = sprite.getBounds();
+  boundingBox.clear();
+  boundingBox.lineStyle(2, 0xFFFFFF);
+  boundingBox.drawRect(avatarBounds.x, avatarBounds.y, avatarBounds.width, avatarBounds.height);
+
   table.scale.set(0.5);
   table.position.y = avatarBounds.height - 80;
   table.position.x = avatarBounds.width;
@@ -115,6 +115,7 @@ function startGame() { // the name of this function is misleading, it should be 
   // Set the width and height of our boxes
   const boxWidth = app.view.width / 10;
   const boxHeight = app.view.height / 10;
+  var isAvatarFacingRight = false;
   function onKeyDown(key) {
     console.log("keydown", key);
     // W Key is 87
@@ -142,7 +143,11 @@ function startGame() { // the name of this function is misleading, it should be 
       // If the A key or the Left arrow is pressed, move the player to the left.
       if (sprite.position.x != 0) {
         // Don't move to the left if the player is at the left side of the stage
-        sprite.position.x -= boxWidth;
+        sprite.position.x -= boxWidth
+        if (isAvatarFacingRight) {
+          sprite.scale.x *= -1; // Flip the avatar image horizontally
+          isAvatarFacingRight = false;
+        }
       }
     }
 
@@ -152,7 +157,11 @@ function startGame() { // the name of this function is misleading, it should be 
       // If the D key or the Right arrow is pressed, move the player to the right.
       if (sprite.position.x != app.view.width - boxWidth) {
         // Don't move to the right if the player is at the right side of the stage
-        sprite.position.x += boxWidth;
+        sprite.position.x += boxWidth
+        if (!isAvatarFacingRight) {
+          sprite.scale.x *= -1; // Flip the avatar image horizontally
+          isAvatarFacingRight = true;
+        }
       }
     }
 
