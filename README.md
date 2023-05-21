@@ -1,6 +1,16 @@
 # swash_buckler
 A multiplayer strategy game built for the EthGlobal Autonomous Worlds hackathon.
 
+## Battle system concept
+TRANSFER TO GDD
+1. Player try to play intent of action (check if enough stamina, mana)
+2. Action is in action queue
+3. Action is executed or activity time is ehausted (Each Action has name, acitivity time, dmg dealt, stamina cost (used) and stamina cost (blocked)
+   Action played criterion: e.g. Attack soft - player is in range.
+   a. If action is executed or activity time ran out, it is removed from action queue
+   b. If action can be played. Action is executed and stamina cost is subtracted from stamina (Issue what if player moves while in activity time - show potential costs or cannot move)
+   c. If action cannot be played (activity timer ran out) Action (Blocked) Stamina cost is reduced from stamina
+
 ## .env files
 Make sure that the .env file within packages/contracts and packages/clients exist and have those variables set:
 
@@ -37,5 +47,12 @@ VITE_CHAIN_ID=31337
 ## Windows WSL system 
 Hot reloading with Windows WSL is not working
 Fix is here: https://www.youtube.com/watch?v=BUClW9wTqGQ&ab_channel=coder4life just for others, in order to get it working.
+
+
+fsnotifier-wsl --selftest
+
+temporary solution: 
+wsl --shutdown
+wsl
 
 

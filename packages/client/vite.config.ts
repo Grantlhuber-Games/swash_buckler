@@ -7,7 +7,7 @@ export default defineConfig({
       strict: false,
     },
     watch: {
-      usePolling: true
+      //usePolling: true
     }
   },
   build: {
