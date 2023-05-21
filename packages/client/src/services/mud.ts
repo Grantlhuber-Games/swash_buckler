@@ -2,7 +2,7 @@ import { mount as mountDevTools } from "@latticexyz/dev-tools";
 import { setup } from "../mud/setup";
 import { runQuery, Has, HasValue, getComponentValueStrict } from "@latticexyz/recs";
 
-export default async function setupMud() {
+export default async function setupMud(mudApp) {
     // abstract
     const {
         components,
@@ -41,10 +41,14 @@ export default async function setupMud() {
         const [nextValue, prevValue] = update.value;
         console.log("Position updated", update, { nextValue, prevValue });
         let coord = String(nextValue?.x ?? "unset") + ", " + String(nextValue?.y ?? "unset");
+
+
         document.getElementById("position")!.innerHTML = coord;
     });
 
     (window as any).setPosition = async (x: number, y: number) => {
+        mudApp.myAvatar.position = { x, y };
+        console.log("mudApp.myAvatar.position", mudApp.myAvatar.position);
         console.log("new position:", await setPosition(x, y));
     };
 

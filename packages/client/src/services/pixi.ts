@@ -1,10 +1,25 @@
 import * as PIXI from "pixi.js";
 
-
+// PIXI_APP
 let app = null;
 
+const globalVars = {
+    // for styling the texts
+    textStyle: {
+        fontSize: "40px",
+        fontWeight: "bold",
+        fontFamily: "Arial",
+        fill: "white",
+    }
+};
+
 // This is the game loop
-export default function startGame() { // the name of this function is misleading, it should be called startGame
+export default function startGame(mudApp: any) { // the name of this function is misleading, it should be called startGame
+    console.log("myAvatar", mudApp.myAvatar);
+    if(!mudApp) {
+        alert("mudApp / avatar is null");
+    }
+
     const disableMouse = true; // disable mouse movement so that the game can be played with keyboard only
 
     app = new PIXI.Application({ width: 1920, height: 1080 }); // this is the game window
@@ -14,47 +29,8 @@ export default function startGame() { // the name of this function is misleading
     createLevel(app);
     createHUD(app);
 
-    // for styling the texts
-    const textStyle = {
-        fontSize: "40px",
-        fontWeight: "bold",
-        fontFamily: "Arial",
-        fill: "white",
-    };
 
-    let text = new PIXI.Text(
-        "Swash Buckler", textStyle
-    );
-    app.stage.addChild(text); // adding to app.stage makes it appear on the screen
 
-    // table to debug print the stats of an avatar
-    const table = new PIXI.Container();
-    app.stage.addChild(table);
-
-    // TODO: Wire up the actual values here
-    let healthValue = "none";
-    let intentValue = "none";
-    let buffValue = "none";
-
-    const healthText = new PIXI.Text(`Health: ${healthValue}`, textStyle);
-    table.addChild(healthText);
-
-    const intentText = new PIXI.Text(`Intent: ${intentValue}`, textStyle);
-    intentText.position.y = 50;
-    table.addChild(intentText);
-
-    const buffText = new PIXI.Text(`Buff: ${buffValue} `, textStyle);
-    buffText.position.y = 100;
-    table.addChild(buffText);
-
-    const tableWidth = Math.max( //math.max makes sure the table is wide enough to fit all the text
-        healthText.width,
-        intentText.width,
-        buffText.width
-    );
-    const tableHeight = 450;
-
-    table.pivot.set(tableWidth / 2, tableHeight / 2); // set the pivot to the center of the table
 
     // Load the avatar image into a sprite
     let sprite = PIXI.Sprite.from("assets/goblin-gaylord.png");
@@ -64,13 +40,8 @@ export default function startGame() { // the name of this function is misleading
     sprite.anchor.set(0.5); // set the anchor to the center of the avatar
     sprite.position.set(app.view.width / 2, app.view.height / 2); // make sure that the avatar can't move outside of the screen
 
-    const avatarBounds = sprite.getBounds();
 
-    table.scale.set(0.5);
-    table.position.y = avatarBounds.height - 80;
-    table.position.x = avatarBounds.width;
-
-    sprite.addChild(table); // adding to app.stage makes it appear on the screen
+    const table = createStats(sprite);
 
     // Options for how objects interact
     // How fast the red square moves
@@ -157,6 +128,7 @@ export default function startGame() { // the name of this function is misleading
 
         // move to gameloop
         window.setPosition(Math.round(sprite.x), Math.round(sprite.y));
+        console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
     }
     // Add the 'keydown' event listener to our document
     document.addEventListener("keydown", onKeyDown);
@@ -172,12 +144,11 @@ export default function startGame() { // the name of this function is misleading
 
     // Toggle the visibility of the table on click
     sprite.interactive = true;
-    sprite.on("click", () => {
-        table.visible = !table.visible;
-    });
+
 
     // Listen for animate update
     app.ticker.add((delta) => {
+
         if (!disableMouse) {
             // Applied deacceleration for both squares, done by reducing the
             // acceleration by 0.01% of the acceleration every loop
@@ -295,6 +266,12 @@ function createLevel(app) {
 }
 
 function createHUD(app) {
+    // Create a text element for the title
+    let text = new PIXI.Text(
+        "Swash Buckler", globalVars.textStyle
+    );
+    app.stage.addChild(text); // adding to app.stage makes it appear on the screen
+
     // Create a container for the fullscreen button
     const fullscreenButtonContainer = new PIXI.Container();
     // Create a button element for fullscreen
@@ -312,4 +289,79 @@ function createHUD(app) {
     app.stage.addChild(fullscreenButtonContainer);
     // Attach the toggleFullscreen function to the button's click event
     fullscreenButton.addEventListener("click", toggleFullscreen);
+}
+
+/**
+ *
+ * @param playerSprite
+ */
+function createStats(playerSprite) {
+
+    const avatarBounds = playerSprite.getBounds();
+    // table to debug print the stats of an avatar
+    const table = new PIXI.Container();
+    app.stage.addChild(table);
+
+    // TODO: Wire up the actual values here
+
+    let statsValues = [
+        {
+            name: "Name",
+            value: "none"
+        },
+        {
+            name: "Health",
+            value: "none"
+        },
+        {
+            name: "Stamina",
+            value: "none"
+        },
+        {
+            name: "Position",
+            value: "none"
+        },/*
+        {
+            name: "Attributes",
+            value: "none"
+        },
+        {
+            name: "Intent",
+            value: "none"
+        }*/
+    ];
+
+    const DISTANCE_BETWEEN_Y = 50;
+    let pixiRetElement = [],
+        pixiObjRet = {},
+        counterYDist = 0;
+
+    for (let stat of statsValues) {
+        let statText = new PIXI.Text(`${stat.name}: ${stat.value}`, globalVars.textStyle);
+        statText.position.y = statText.position.y + counterYDist * DISTANCE_BETWEEN_Y;
+        table.addChild(statText);
+        pixiObjRet[stat.name] = statText;
+        pixiRetElement.push(statText);
+        counterYDist++;
+    }
+   let widthElements = pixiRetElement.map((x) => x.width)
+
+    const tableWidth = Math.max(...widthElements);
+    console.log("tableWidth", tableWidth)
+
+
+    const tableHeight = 450;
+    table.pivot.set(tableWidth / 2, tableHeight / 2); // set the pivot to the center of the table
+    table.scale.set(0.5);
+    table.position.y = avatarBounds.height - 80;
+    table.position.x = avatarBounds.width;
+
+    playerSprite.on("click", () => {
+        table.visible = !table.visible;
+    });
+
+    playerSprite.addChild(table); // adding to app.stage makes it appear on the screen
+
+    // return mapping easy key value access to update
+    return pixiObjRet;
 }

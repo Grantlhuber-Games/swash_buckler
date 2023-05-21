@@ -1,13 +1,17 @@
 import mudService from "./services/mud";
+import Avatar from "./models/Avatar";
 import startGame from "./services/pixi";
 
 // Setup of the game withing the window
 class App {
-  constructor() { }
+  constructor() {
+    this.myAvatar = new Avatar("myAvatar", {x: 0, y: 0}, 100, 100);
+  }
 
   async init() {
-    await mudService();
-    startGame();
+
+    await mudService(this);
+    startGame(this);
   }
 }
 
