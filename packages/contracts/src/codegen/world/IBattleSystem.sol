@@ -6,7 +6,7 @@ pragma solidity >=0.8.0;
 import { ActionData } from "./../tables/Action.sol";
 
 interface IBattleSystem {
-  function getActions() external view returns (ActionData memory _table);
+  function getActionById(uint8 actionId) external view returns (ActionData memory _table);
 
   function intend() external;
 

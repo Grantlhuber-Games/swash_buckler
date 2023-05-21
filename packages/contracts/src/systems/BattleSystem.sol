@@ -8,14 +8,12 @@ import { ActionData } from "../codegen/tables/Action.sol";
 
 contract BattleSystem is System {
 
-  function getActions() public view returns (ActionData memory _table) {
+
+  function getActionById(uint8 actionId) public view returns (ActionData memory _table) {
     //bytes32 actionId = bytes32(keccak256("attack"));
-    uint8 actionId = 1;
-    ActionData memory jo = Action.get(actionId);
-    return jo;
+    ActionData memory actionData = Action.get(actionId);
+    return actionData;
   }
-
-
   /*
   function getActions() public view returns (string memory) {
     //bytes32 actionId = bytes32(keccak256("attack"));

@@ -6,7 +6,7 @@ export default async function setupMud() {
     // abstract
     const {
         components,
-        systemCalls: { increment, setPosition, hurt, heal, kill, revive, refill, getActions },
+        systemCalls: { increment, setPosition, hurt, heal, kill, revive, refill, getActionById, initActions },
     } = await setup();
 
     // alternative you can get
@@ -16,6 +16,13 @@ export default async function setupMud() {
         const [nextValue, prevValue] = update.value;
         console.log("Action updated", update, { nextValue, prevValue });
     });
+    (window as any).initActions = async () => {
+        console.log("new actions:", await initActions());
+    };
+    (window as any).getActionById = async (actionId: number) => {
+        console.log("getActionById:", await getActionById(actionId));
+    };
+
 
     // Components expose a stream that triggers when the component is updated.
     components.Counter.update$.subscribe((update: any) => {
@@ -23,9 +30,6 @@ export default async function setupMud() {
         console.log("Counter updated", update, { nextValue, prevValue });
         document.getElementById("counter")!.innerHTML = String(nextValue?.value ?? "unset");
     });
-
-
-
 
     // Just for demonstration purposes: we create a global function that can be
     // called to invoke the Increment system contract via the world. (See IncrementSystem.sol.)
@@ -72,9 +76,6 @@ export default async function setupMud() {
         console.log("heal:", await revive());
     };
 
-    (window as any).getActions = async () => {
-        console.log("getActions:", await getActions());
-    };
     (window as any).getHealth = async () => {
         console.log("getHealth:", await components.Health);
     };
