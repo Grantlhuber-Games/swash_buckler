@@ -1,14 +1,21 @@
 import { mount as mountDevTools } from "@latticexyz/dev-tools";
 import { setup } from "../mud/setup";
+import { runQuery, Has, HasValue, getComponentValueStrict } from "@latticexyz/recs";
 
 export default async function setupMud() {
     // abstract
     const {
         components,
-        systemCalls: { increment, setPosition, hurt, heal, kill, revive, refill },
+        systemCalls: { increment, setPosition, hurt, heal, kill, revive, refill, getActions },
     } = await setup();
 
     // alternative you can get
+    //components.Action.get(bytes32(keccak256("some.key")));
+    // Components expose a stream that triggers when the component is updated.
+    components.Action.update$.subscribe((update: any) => {
+        const [nextValue, prevValue] = update.value;
+        console.log("Action updated", update, { nextValue, prevValue });
+    });
 
     // Components expose a stream that triggers when the component is updated.
     components.Counter.update$.subscribe((update: any) => {
@@ -25,7 +32,6 @@ export default async function setupMud() {
     (window as any).increment = async () => {
         console.log("new counter value:", await increment());
     };
-
 
     components.Position.update$.subscribe((update: any) => {
         const [nextValue, prevValue] = update.value;
@@ -66,6 +72,26 @@ export default async function setupMud() {
         console.log("heal:", await revive());
     };
 
+    (window as any).getActions = async () => {
+        console.log("getActions:", await getActions());
+    };
+    (window as any).getHealth = async () => {
+        console.log("getHealth:", await components.Health);
+    };
+
 
     mountDevTools();
+
+    /*
+    //const { PlayerComponent, PositionComponent, NameComponent } = components
+// query for all named players at the center of the universe
+    const matchingEntities = runQuery([
+        Has(components.Counter)
+    ])
+// now you can map these to their name as an example
+console.log("matchingEntities", matchingEntities)
+// -> ["Bob", "Alice", "Eve"]
+
+     */
+
 }

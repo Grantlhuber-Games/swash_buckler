@@ -7,7 +7,7 @@ export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
 export function createSystemCalls(
   { worldSend, txReduced$, singletonEntity }: SetupNetworkResult,
-  { Counter, Position, Health }: ClientComponents
+  { Counter, Position, Health, BattleSystem }: ClientComponents
 ) {
   const increment = async () => {
     const tx = await worldSend("increment", []);
@@ -52,6 +52,12 @@ export function createSystemCalls(
     return getComponentValue(Health, singletonEntity);
   };
 
+  const getActions = async () => {
+    const tx = await worldSend("getActions", []);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+    return getComponentValue(BattleSystem, singletonEntity);
+  };
+
   return {
     increment,
     setPosition,
@@ -59,6 +65,7 @@ export function createSystemCalls(
     heal,
     kill,
     revive,
-    refill
+    refill,
+    getActions
   };
 }

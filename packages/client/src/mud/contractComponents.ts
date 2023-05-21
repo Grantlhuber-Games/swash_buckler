@@ -5,17 +5,34 @@ import { defineComponent, Type as RecsType, World } from "@latticexyz/recs";
 
 export function defineContractComponents(world: World) {
   return {
-    Avatar: (() => {
-      const tableId = new TableId("", "Avatar");
+    Char: (() => {
+      const tableId = new TableId("", "Char");
       return defineComponent(
         world,
         {
           name: RecsType.String,
+          description: RecsType.String,
           human: RecsType.Boolean,
           charClass: RecsType.String,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    Attributes: (() => {
+      const tableId = new TableId("", "Attributes");
+      return defineComponent(
+        world,
+        {
           strength: RecsType.Number,
           dexterity: RecsType.Number,
+          mana: RecsType.Number,
           armor: RecsType.Number,
+          speed: RecsType.Number,
         },
         {
           metadata: {
@@ -62,6 +79,25 @@ export function defineContractComponents(world: World) {
         world,
         {
           stamina: RecsType.Number,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    Action: (() => {
+      const tableId = new TableId("", "Action");
+      return defineComponent(
+        world,
+        {
+          minLvl: RecsType.Number,
+          baseDamage: RecsType.Number,
+          costsStaminaUsed: RecsType.Number,
+          costsStaminaExpired: RecsType.Number,
+          name: RecsType.String,
         },
         {
           metadata: {
