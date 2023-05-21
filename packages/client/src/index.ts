@@ -12,7 +12,7 @@ class App {
 }
 
 const app = new App(); // this is the game
-await app.init(); // this starts the game
+await app.init(); // this makes the mudService run and then starts the game
 
 // This is the game loop
 function startGame() { // the name of this function is misleading, it should be called startGame
@@ -22,17 +22,29 @@ function startGame() { // the name of this function is misleading, it should be 
   // console.log("app", app.view.width);
   document.body.appendChild(app.view); // app.view is the canvas element currently being used. It contains the game
 
- // Create a sprite for the background image
- const randomNumber = Math.floor(Math.random() * 4) + 1;
- const background = PIXI.Sprite.from(`assets/background_0${randomNumber}.png`);
- background.width = app.view.width;
- background.height = app.view.height;
- app.stage.addChild(background);
-
+  // Create a sprite for the background image
+  const randomNumber = Math.floor(Math.random() * 4) + 1;
+  const background = PIXI.Sprite.from(`assets/background_0${randomNumber}.png`);
+  background.width = app.view.width;
+  background.height = app.view.height;
+  app.stage.addChild(background);
+  // Create a container for the fullscreen button
+  const fullscreenButtonContainer = new PIXI.Container();
+  
+  
   // Create a button element for fullscreen
-  const fullscreenButton = document.createElement("button");
-  fullscreenButton.textContent = "Fullscreen";
-  document.body.appendChild(fullscreenButton);
+  const fullscreenButton = new PIXI.Text(" Fullscreen", {
+    fontSize: "20px",
+    fill: "white",
+  });
+  // Set the position of the fullscreen button
+  fullscreenButton.position.set(0, 50);
+  // Make it interactive to enable mouse and touch events
+  fullscreenButton.interactive = true;
+  fullscreenButtonContainer.addChild(fullscreenButton);
+  // Attach a click event listener to the fullscreen button
+  fullscreenButton.on("click", toggleFullscreen);
+  app.stage.addChild(fullscreenButtonContainer);
 
   // for styling the texts
   const textStyle = {
@@ -43,14 +55,14 @@ function startGame() { // the name of this function is misleading, it should be 
   };
 
   var text = new PIXI.Text(
-    "Swash Buckler",textStyle
+    "Swash Buckler", textStyle
   );
   app.stage.addChild(text); // adding to app.stage makes it appear on the screen
 
   // table to debug print the stats of an avatar
   const table = new PIXI.Container();
   app.stage.addChild(table);
-  
+
   // TODO: Wire up the actual values here 
   var healthValue = "none";
   var intentValue = "none";
@@ -74,36 +86,24 @@ function startGame() { // the name of this function is misleading, it should be 
   );
   const tableHeight = 450;
 
-  const tableBackground = new PIXI.Graphics();
-  tableBackground.drawRect(0, 0, tableWidth, tableHeight);
-  tableBackground.endFill();
-  table.addChildAt(tableBackground, 0);
+  table.pivot.set(tableWidth / 2, tableHeight / 2); // set the pivot to the center of the table
 
-  table.pivot.set(tableWidth / 2, tableHeight / 2); //this is the center of the table
-  // table.position.set(app.view.width / 2, app.view.height / 3); // this is the center of the screen
-  
-  // Magically load the PNG asynchronously
+  // Load the avatar image into a sprite
   let sprite = PIXI.Sprite.from("assets/goblin-gaylord.png");
-  sprite.position.set(app.view.width / 2 - sprite.width / 2, app.view.height / 2 - sprite.height / 2);
-  
-  sprite.scale.set(1);
-  sprite.anchor.set(0.5);
-  sprite.position.set(app.view.width / 2, app.view.height / 2);
+  sprite.position.set(app.view.width / 2 - sprite.width / 2, app.view.height / 2 - sprite.height / 2); // center the avatar
 
-  // Debugging bounding box
-  const boundingBox = new PIXI.Graphics();
-  app.stage.addChild(boundingBox);
+  sprite.scale.set(1); // scale the avatar
+  sprite.anchor.set(0.5); // set the anchor to the center of the avatar
+  sprite.position.set(app.view.width / 2, app.view.height / 2); // make sure that the avatar can't move outside of the screen
+
   const avatarBounds = sprite.getBounds();
-  boundingBox.clear();
-  boundingBox.lineStyle(2, 0xFFFFFF);
-  boundingBox.drawRect(avatarBounds.x, avatarBounds.y, avatarBounds.width, avatarBounds.height);
 
   table.scale.set(0.5);
   table.position.y = avatarBounds.height - 80;
   table.position.x = avatarBounds.width;
-  
+
   sprite.addChild(table); // adding to app.stage makes it appear on the screen
-  
+
   // Options for how objects interact
   // How fast the red square moves
   const movementSpeed = 0.05;
@@ -201,11 +201,11 @@ function startGame() { // the name of this function is misleading, it should be 
   });
   // mouse events end
 
-    // Toggle the visibility of the table on click
-    sprite.interactive = true;
-    sprite.on("click", () => {
-      table.visible = !table.visible;
-    });
+  // Toggle the visibility of the table on click
+  sprite.interactive = true;
+  sprite.on("click", () => {
+    table.visible = !table.visible;
+  });
 
   // Listen for animate update
   app.ticker.add((delta) => {
