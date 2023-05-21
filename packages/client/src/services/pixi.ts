@@ -41,7 +41,7 @@ export default function startGame(mudApp: any) { // the name of this function is
     sprite.position.set(app.view.width / 2, app.view.height / 2); // make sure that the avatar can't move outside of the screen
 
 
-    const table = createStats(sprite);
+    const STAT_FIELDS_OBJ = createStats(sprite);
 
     // Options for how objects interact
     // How fast the red square moves
@@ -129,6 +129,7 @@ export default function startGame(mudApp: any) { // the name of this function is
         // move to gameloop
         window.setPosition(Math.round(sprite.x), Math.round(sprite.y));
         console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
+        STAT_FIELDS_OBJ["Position"].text = `Position: ${mudApp.myAvatar.position.x}, ${mudApp.myAvatar.position.y}`;
     }
     // Add the 'keydown' event listener to our document
     document.addEventListener("keydown", onKeyDown);
