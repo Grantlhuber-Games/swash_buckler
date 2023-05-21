@@ -15,6 +15,9 @@ contract PlayerSystem is System {
     //bytes32 newEntity = getUniqueEntity();
     //addressToEntity(_msgSender()); // bytes32(uint256(uint160(_msgSender())));
     //bytes32 player = bytes32(uint256(uint160(_msgSender())));
+
+    // set Character, Position, Attributes components
+
     //Position.set(x, y);
     // creates new Avatar
     //Avatar.set(player, name, true, "knight", 3, 2, 3, 0, 0);
@@ -22,7 +25,6 @@ contract PlayerSystem is System {
 
   function spawn(int32 x, int32 y) public {
     //bytes32 player = addressToEntity(_msgSender());
-
     Position.set(x, y);
   }
 }
