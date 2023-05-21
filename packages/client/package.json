@@ -24,8 +24,8 @@
     "@wagmi/chains": "^0.2.22",
     "contracts": "workspace:*",
     "ethers": "^5.7.2",
-    "pixi.js": "^7.2.4",
-    "@pixi/ui": "^0.7.0"
+    "pixi-sound": "^3.0.5",
+    "pixi.js": "^7.2.4"
   },
   "devDependencies": {
     "vite": "^4.2.1",

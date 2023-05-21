@@ -1,7 +1,5 @@
 import mudService from "./services/mud";
 import * as PIXI from "pixi.js";
-import { Loader } from "@pixi/loaders";
-import { Button, ScrollBox } from "@pixi/ui";
 
 // Setup of the game withing the window
 class App {
@@ -14,28 +12,41 @@ class App {
 }
 
 const app = new App(); // this is the game
-await app.init(); // this starts the game
+await app.init(); // this makes the mudService run and then starts the game
 
 // This is the game loop
 function startGame() { // the name of this function is misleading, it should be called startGame
   const disableMouse = true; // disable mouse movement so that the game can be played with keyboard only
 
-  let app = new PIXI.Application({ width: 800, height: 600 }); // this is the game window
+  let app = new PIXI.Application({ width: 1920, height: 1080 }); // this is the game window
   // console.log("app", app.view.width);
   document.body.appendChild(app.view); // app.view is the canvas element currently being used. It contains the game
 
- // Create a sprite for the background image
- const background = PIXI.Sprite.from("assets/background.png");
- background.width = app.view.width;
- background.height = app.view.height;
- app.stage.addChild(background);
-
+  // Create a sprite for the background image
+  const randomNumber = Math.floor(Math.random() * 4) + 1;
+  const background = PIXI.Sprite.from(`assets/background_0${randomNumber}.png`);
+  background.width = app.view.width;
+  background.height = app.view.height;
+  app.stage.addChild(background);
+  // Create a container for the fullscreen button
+  const fullscreenButtonContainer = new PIXI.Container();
+  
+  
   // Create a button element for fullscreen
-  const fullscreenButton = document.createElement("button");
-  fullscreenButton.textContent = "Fullscreen";
-  document.body.appendChild(fullscreenButton);
+  const fullscreenButton = new PIXI.Text(" Fullscreen", {
+    fontSize: "20px",
+    fill: "white",
+  });
+  // Set the position of the fullscreen button
+  fullscreenButton.position.set(0, 50);
+  // Make it interactive to enable mouse and touch events
+  fullscreenButton.interactive = true;
+  fullscreenButtonContainer.addChild(fullscreenButton);
+  // Attach a click event listener to the fullscreen button
+  fullscreenButton.on("click", toggleFullscreen);
+  app.stage.addChild(fullscreenButtonContainer);
 
-  // for styling the texta
+  // for styling the texts
   const textStyle = {
     fontSize: "40px",
     fontWeight: "bold",
@@ -44,7 +55,7 @@ function startGame() { // the name of this function is misleading, it should be 
   };
 
   var text = new PIXI.Text(
-    "Swash Buckler",textStyle
+    "Swash Buckler", textStyle
   );
   app.stage.addChild(text); // adding to app.stage makes it appear on the screen
 
@@ -52,8 +63,8 @@ function startGame() { // the name of this function is misleading, it should be 
   const table = new PIXI.Container();
   app.stage.addChild(table);
 
-
-  var healthValue = 200;
+  // TODO: Wire up the actual values here 
+  var healthValue = "none";
   var intentValue = "none";
   var buffValue = "none";
 
@@ -75,31 +86,24 @@ function startGame() { // the name of this function is misleading, it should be 
   );
   const tableHeight = 450;
 
-  const tableBackground = new PIXI.Graphics();
-  // tableBackground.beginFill(0x000000); // transparent would be
-  tableBackground.drawRect(0, 0, tableWidth, tableHeight);
-  tableBackground.endFill();
-  table.addChildAt(tableBackground, 0);
+  table.pivot.set(tableWidth / 2, tableHeight / 2); // set the pivot to the center of the table
 
-  table.pivot.set(tableWidth / 2, tableHeight / 2); //this is the center of the table
-  table.position.set(app.view.width / 2, app.view.height / 2); // this is the center of the screen
-  
-  // Magically load the PNG asynchronously
+  // Load the avatar image into a sprite
   let sprite = PIXI.Sprite.from("assets/goblin-gaylord.png");
-  sprite.position.set(app.view.width / 2 - sprite.width / 2, app.view.height / 2 - sprite.height / 2);
-  
-  sprite.scale.set(0.25);
-  sprite.anchor.set(0.5);
-  sprite.position.set(app.view.width / 2, app.view.height / 2);
-  //sprite.tint = 0xFF0000;
-  sprite.acceleration = new PIXI.Point(0); // only used for mouse
-  sprite.mass = 1;
+  sprite.position.set(app.view.width / 2 - sprite.width / 2, app.view.height / 2 - sprite.height / 2); // center the avatar
+
+  sprite.scale.set(1); // scale the avatar
+  sprite.anchor.set(0.5); // set the anchor to the center of the avatar
+  sprite.position.set(app.view.width / 2, app.view.height / 2); // make sure that the avatar can't move outside of the screen
 
   const avatarBounds = sprite.getBounds();
-  table.position.y = avatarBounds.y + avatarBounds.height / 2;
-  
+
+  table.scale.set(0.5);
+  table.position.y = avatarBounds.height - 80;
+  table.position.x = avatarBounds.width;
+
   sprite.addChild(table); // adding to app.stage makes it appear on the screen
-  
+
   // Options for how objects interact
   // How fast the red square moves
   const movementSpeed = 0.05;
@@ -111,6 +115,7 @@ function startGame() { // the name of this function is misleading, it should be 
   // Set the width and height of our boxes
   const boxWidth = app.view.width / 10;
   const boxHeight = app.view.height / 10;
+  var isAvatarFacingRight = false;
   function onKeyDown(key) {
     console.log("keydown", key);
     // W Key is 87
@@ -138,7 +143,11 @@ function startGame() { // the name of this function is misleading, it should be 
       // If the A key or the Left arrow is pressed, move the player to the left.
       if (sprite.position.x != 0) {
         // Don't move to the left if the player is at the left side of the stage
-        sprite.position.x -= boxWidth;
+        sprite.position.x -= boxWidth
+        if (isAvatarFacingRight) {
+          sprite.scale.x *= -1; // Flip the avatar image horizontally
+          isAvatarFacingRight = false;
+        }
       }
     }
 
@@ -148,7 +157,11 @@ function startGame() { // the name of this function is misleading, it should be 
       // If the D key or the Right arrow is pressed, move the player to the right.
       if (sprite.position.x != app.view.width - boxWidth) {
         // Don't move to the right if the player is at the right side of the stage
-        sprite.position.x += boxWidth;
+        sprite.position.x += boxWidth
+        if (!isAvatarFacingRight) {
+          sprite.scale.x *= -1; // Flip the avatar image horizontally
+          isAvatarFacingRight = true;
+        }
       }
     }
 
@@ -188,11 +201,11 @@ function startGame() { // the name of this function is misleading, it should be 
   });
   // mouse events end
 
-    // Toggle the visibility of the table on click
-    sprite.interactive = true;
-    sprite.on("click", () => {
-      table.visible = !table.visible;
-    });
+  // Toggle the visibility of the table on click
+  sprite.interactive = true;
+  sprite.on("click", () => {
+    table.visible = !table.visible;
+  });
 
   // Listen for animate update
   app.ticker.add((delta) => {
