@@ -6,9 +6,9 @@ const
     modelSchema: {
         keySchema: {},
         schema: {
+            human: "bool",
             name: "string",
             description: "string",
-            human: "bool",
             charClass: "string"
         }
     }

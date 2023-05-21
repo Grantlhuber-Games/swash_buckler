@@ -25,18 +25,22 @@ struct ActionData {
   uint32 baseDamage;
   uint32 costsStaminaUsed;
   uint32 costsStaminaExpired;
+  int8 usages;
+  uint32 activityLength;
   string name;
 }
 
 library Action {
   /** Get the table's schema */
   function getSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](5);
+    SchemaType[] memory _schema = new SchemaType[](7);
     _schema[0] = SchemaType.UINT32;
     _schema[1] = SchemaType.UINT32;
     _schema[2] = SchemaType.UINT32;
     _schema[3] = SchemaType.UINT32;
-    _schema[4] = SchemaType.STRING;
+    _schema[4] = SchemaType.INT8;
+    _schema[5] = SchemaType.UINT32;
+    _schema[6] = SchemaType.STRING;
 
     return SchemaLib.encode(_schema);
   }
@@ -50,12 +54,14 @@ library Action {
 
   /** Get the table's metadata */
   function getMetadata() internal pure returns (string memory, string[] memory) {
-    string[] memory _fieldNames = new string[](5);
+    string[] memory _fieldNames = new string[](7);
     _fieldNames[0] = "minLvl";
     _fieldNames[1] = "baseDamage";
     _fieldNames[2] = "costsStaminaUsed";
     _fieldNames[3] = "costsStaminaExpired";
-    _fieldNames[4] = "name";
+    _fieldNames[4] = "usages";
+    _fieldNames[5] = "activityLength";
+    _fieldNames[6] = "name";
     return ("Action", _fieldNames);
   }
 
@@ -217,12 +223,80 @@ library Action {
     _store.setField(_tableId, _keyTuple, 3, abi.encodePacked((costsStaminaExpired)));
   }
 
+  /** Get usages */
+  function getUsages(uint8 id) internal view returns (int8 usages) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256((id)));
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 4);
+    return (int8(uint8(Bytes.slice1(_blob, 0))));
+  }
+
+  /** Get usages (using the specified store) */
+  function getUsages(IStore _store, uint8 id) internal view returns (int8 usages) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256((id)));
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 4);
+    return (int8(uint8(Bytes.slice1(_blob, 0))));
+  }
+
+  /** Set usages */
+  function setUsages(uint8 id, int8 usages) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256((id)));
+
+    StoreSwitch.setField(_tableId, _keyTuple, 4, abi.encodePacked((usages)));
+  }
+
+  /** Set usages (using the specified store) */
+  function setUsages(IStore _store, uint8 id, int8 usages) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256((id)));
+
+    _store.setField(_tableId, _keyTuple, 4, abi.encodePacked((usages)));
+  }
+
+  /** Get activityLength */
+  function getActivityLength(uint8 id) internal view returns (uint32 activityLength) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256((id)));
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 5);
+    return (uint32(Bytes.slice4(_blob, 0)));
+  }
+
+  /** Get activityLength (using the specified store) */
+  function getActivityLength(IStore _store, uint8 id) internal view returns (uint32 activityLength) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256((id)));
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 5);
+    return (uint32(Bytes.slice4(_blob, 0)));
+  }
+
+  /** Set activityLength */
+  function setActivityLength(uint8 id, uint32 activityLength) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256((id)));
+
+    StoreSwitch.setField(_tableId, _keyTuple, 5, abi.encodePacked((activityLength)));
+  }
+
+  /** Set activityLength (using the specified store) */
+  function setActivityLength(IStore _store, uint8 id, uint32 activityLength) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32(uint256((id)));
+
+    _store.setField(_tableId, _keyTuple, 5, abi.encodePacked((activityLength)));
+  }
+
   /** Get name */
   function getName(uint8 id) internal view returns (string memory name) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 4);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 6);
     return (string(_blob));
   }
 
@@ -231,7 +305,7 @@ library Action {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 4);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 6);
     return (string(_blob));
   }
 
@@ -240,7 +314,7 @@ library Action {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
-    StoreSwitch.setField(_tableId, _keyTuple, 4, bytes((name)));
+    StoreSwitch.setField(_tableId, _keyTuple, 6, bytes((name)));
   }
 
   /** Set name (using the specified store) */
@@ -248,7 +322,7 @@ library Action {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
-    _store.setField(_tableId, _keyTuple, 4, bytes((name)));
+    _store.setField(_tableId, _keyTuple, 6, bytes((name)));
   }
 
   /** Get the length of name */
@@ -256,7 +330,7 @@ library Action {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
-    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 4, getSchema());
+    uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 6, getSchema());
     return _byteLength / 1;
   }
 
@@ -265,7 +339,7 @@ library Action {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
-    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 4, getSchema());
+    uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 6, getSchema());
     return _byteLength / 1;
   }
 
@@ -274,7 +348,7 @@ library Action {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
-    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 4, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 6, getSchema(), _index * 1, (_index + 1) * 1);
     return (string(_blob));
   }
 
@@ -283,7 +357,7 @@ library Action {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
-    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 4, getSchema(), _index * 1, (_index + 1) * 1);
+    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 6, getSchema(), _index * 1, (_index + 1) * 1);
     return (string(_blob));
   }
 
@@ -292,7 +366,7 @@ library Action {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
-    StoreSwitch.pushToField(_tableId, _keyTuple, 4, bytes((_slice)));
+    StoreSwitch.pushToField(_tableId, _keyTuple, 6, bytes((_slice)));
   }
 
   /** Push a slice to name (using the specified store) */
@@ -300,7 +374,7 @@ library Action {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
-    _store.pushToField(_tableId, _keyTuple, 4, bytes((_slice)));
+    _store.pushToField(_tableId, _keyTuple, 6, bytes((_slice)));
   }
 
   /** Pop a slice from name */
@@ -308,7 +382,7 @@ library Action {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 4, 1);
+    StoreSwitch.popFromField(_tableId, _keyTuple, 6, 1);
   }
 
   /** Pop a slice from name (using the specified store) */
@@ -316,7 +390,7 @@ library Action {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
-    _store.popFromField(_tableId, _keyTuple, 4, 1);
+    _store.popFromField(_tableId, _keyTuple, 6, 1);
   }
 
   /** Update a slice of name at `_index` */
@@ -324,7 +398,7 @@ library Action {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
-    StoreSwitch.updateInField(_tableId, _keyTuple, 4, _index * 1, bytes((_slice)));
+    StoreSwitch.updateInField(_tableId, _keyTuple, 6, _index * 1, bytes((_slice)));
   }
 
   /** Update a slice of name (using the specified store) at `_index` */
@@ -332,7 +406,7 @@ library Action {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
-    _store.updateInField(_tableId, _keyTuple, 4, _index * 1, bytes((_slice)));
+    _store.updateInField(_tableId, _keyTuple, 6, _index * 1, bytes((_slice)));
   }
 
   /** Get the full data */
@@ -360,9 +434,19 @@ library Action {
     uint32 baseDamage,
     uint32 costsStaminaUsed,
     uint32 costsStaminaExpired,
+    int8 usages,
+    uint32 activityLength,
     string memory name
   ) internal {
-    bytes memory _data = encode(minLvl, baseDamage, costsStaminaUsed, costsStaminaExpired, name);
+    bytes memory _data = encode(
+      minLvl,
+      baseDamage,
+      costsStaminaUsed,
+      costsStaminaExpired,
+      usages,
+      activityLength,
+      name
+    );
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
@@ -378,9 +462,19 @@ library Action {
     uint32 baseDamage,
     uint32 costsStaminaUsed,
     uint32 costsStaminaExpired,
+    int8 usages,
+    uint32 activityLength,
     string memory name
   ) internal {
-    bytes memory _data = encode(minLvl, baseDamage, costsStaminaUsed, costsStaminaExpired, name);
+    bytes memory _data = encode(
+      minLvl,
+      baseDamage,
+      costsStaminaUsed,
+      costsStaminaExpired,
+      usages,
+      activityLength,
+      name
+    );
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
@@ -390,18 +484,37 @@ library Action {
 
   /** Set the full data using the data struct */
   function set(uint8 id, ActionData memory _table) internal {
-    set(id, _table.minLvl, _table.baseDamage, _table.costsStaminaUsed, _table.costsStaminaExpired, _table.name);
+    set(
+      id,
+      _table.minLvl,
+      _table.baseDamage,
+      _table.costsStaminaUsed,
+      _table.costsStaminaExpired,
+      _table.usages,
+      _table.activityLength,
+      _table.name
+    );
   }
 
   /** Set the full data using the data struct (using the specified store) */
   function set(IStore _store, uint8 id, ActionData memory _table) internal {
-    set(_store, id, _table.minLvl, _table.baseDamage, _table.costsStaminaUsed, _table.costsStaminaExpired, _table.name);
+    set(
+      _store,
+      id,
+      _table.minLvl,
+      _table.baseDamage,
+      _table.costsStaminaUsed,
+      _table.costsStaminaExpired,
+      _table.usages,
+      _table.activityLength,
+      _table.name
+    );
   }
 
   /** Decode the tightly packed blob using this table's schema */
   function decode(bytes memory _blob) internal view returns (ActionData memory _table) {
-    // 16 is the total byte length of static data
-    PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 16));
+    // 21 is the total byte length of static data
+    PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 21));
 
     _table.minLvl = (uint32(Bytes.slice4(_blob, 0)));
 
@@ -411,11 +524,15 @@ library Action {
 
     _table.costsStaminaExpired = (uint32(Bytes.slice4(_blob, 12)));
 
+    _table.usages = (int8(uint8(Bytes.slice1(_blob, 16))));
+
+    _table.activityLength = (uint32(Bytes.slice4(_blob, 17)));
+
     // Store trims the blob if dynamic fields are all empty
-    if (_blob.length > 16) {
+    if (_blob.length > 21) {
       uint256 _start;
       // skip static data length + dynamic lengths word
-      uint256 _end = 48;
+      uint256 _end = 53;
 
       _start = _end;
       _end += _encodedLengths.atIndex(0);
@@ -429,6 +546,8 @@ library Action {
     uint32 baseDamage,
     uint32 costsStaminaUsed,
     uint32 costsStaminaExpired,
+    int8 usages,
+    uint32 activityLength,
     string memory name
   ) internal view returns (bytes memory) {
     uint40[] memory _counters = new uint40[](1);
@@ -441,6 +560,8 @@ library Action {
         baseDamage,
         costsStaminaUsed,
         costsStaminaExpired,
+        usages,
+        activityLength,
         _encodedLengths.unwrap(),
         bytes((name))
       );

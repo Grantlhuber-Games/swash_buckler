@@ -5,14 +5,14 @@ import { defineComponent, Type as RecsType, World } from "@latticexyz/recs";
 
 export function defineContractComponents(world: World) {
   return {
-    Char: (() => {
-      const tableId = new TableId("", "Char");
+    Character: (() => {
+      const tableId = new TableId("", "Character");
       return defineComponent(
         world,
         {
+          human: RecsType.Boolean,
           name: RecsType.String,
           description: RecsType.String,
-          human: RecsType.Boolean,
           charClass: RecsType.String,
         },
         {
@@ -97,6 +97,8 @@ export function defineContractComponents(world: World) {
           baseDamage: RecsType.Number,
           costsStaminaUsed: RecsType.Number,
           costsStaminaExpired: RecsType.Number,
+          usages: RecsType.Number,
+          activityLength: RecsType.Number,
           name: RecsType.String,
         },
         {
