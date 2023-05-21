@@ -1,5 +1,6 @@
 import mudService from "./services/mud";
 import * as PIXI from "pixi.js";
+import * as SOUND from 'pixi-sound';
 
 // Setup of the game withing the window
 class App {
@@ -21,6 +22,9 @@ function startGame() { // the name of this function is misleading, it should be 
   let app = new PIXI.Application({ width: 1920, height: 1080 }); // this is the game window
   // console.log("app", app.view.width);
   document.body.appendChild(app.view); // app.view is the canvas element currently being used. It contains the game
+
+  // Add some sound
+  SOUND.default.add('background', 'assets/background.mp3'); //this is the background music. It will loop forever and start playing as soon as the game starts
 
  // Create a sprite for the background image
  const randomNumber = Math.floor(Math.random() * 4) + 1;
