@@ -8,7 +8,6 @@ import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 import { IBattleSystem } from "./IBattleSystem.sol";
 import { IHealthSystem } from "./IHealthSystem.sol";
 import { IIncrementSystem } from "./IIncrementSystem.sol";
-import { IInitializationSystem } from "./IInitializationSystem.sol";
 import { IMovementSystem } from "./IMovementSystem.sol";
 import { IPlayerSystem } from "./IPlayerSystem.sol";
 import { IStaminaSystem } from "./IStaminaSystem.sol";
@@ -22,7 +21,6 @@ interface IWorld is
   IBattleSystem,
   IHealthSystem,
   IIncrementSystem,
-  IInitializationSystem,
   IMovementSystem,
   IPlayerSystem,
   IStaminaSystem

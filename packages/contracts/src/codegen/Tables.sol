@@ -8,5 +8,6 @@ import { Attributes, AttributesData, AttributesTableId } from "./tables/Attribut
 import { Position, PositionData, PositionTableId } from "./tables/Position.sol";
 import { Health, HealthTableId } from "./tables/Health.sol";
 import { Stamina, StaminaTableId } from "./tables/Stamina.sol";
+import { Intent, IntentData, IntentTableId } from "./tables/Intent.sol";
 import { Action, ActionData, ActionTableId } from "./tables/Action.sol";
 import { Counter, CounterTableId } from "./tables/Counter.sol";

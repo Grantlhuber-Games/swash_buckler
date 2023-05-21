@@ -30,8 +30,6 @@ export default function startGame(mudApp: any) { // the name of this function is
     createHUD(app);
 
 
-
-
     // Load the avatar image into a sprite
     let sprite = PIXI.Sprite.from("assets/goblin-gaylord.png");
     sprite.position.set(app.view.width / 2 - sprite.width / 2, app.view.height / 2 - sprite.height / 2); // center the avatar

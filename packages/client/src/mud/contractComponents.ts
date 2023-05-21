@@ -88,6 +88,22 @@ export function defineContractComponents(world: World) {
         }
       );
     })(),
+    Intent: (() => {
+      const tableId = new TableId("", "Intent");
+      return defineComponent(
+        world,
+        {
+          intents: RecsType.Number,
+          actions: RecsType.StringArray,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
     Action: (() => {
       const tableId = new TableId("", "Action");
       return defineComponent(

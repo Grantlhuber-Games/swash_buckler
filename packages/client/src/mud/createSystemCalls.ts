@@ -3,16 +3,24 @@ import { awaitStreamValue } from "@latticexyz/utils";
 import { ClientComponents } from "./createClientComponents";
 import { SetupNetworkResult } from "./setupNetwork";
 
+
+
 export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
 export function createSystemCalls(
   { worldSend, txReduced$, singletonEntity }: SetupNetworkResult,
-  { Counter, Position, Health, Action }: ClientComponents
+  { Character, Attributes, Position, Health, Stamina, Intent, Action, Counter }: ClientComponents
 ) {
   const increment = async () => {
     const tx = await worldSend("increment", []);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
     return getComponentValue(Counter, singletonEntity);
+  };
+
+  const createPlayer = async () => {
+    const tx = await worldSend("createPlayer", ["John"]);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+    return getComponentValue(Character, singletonEntity);
   };
 
   const setPosition = async (x: number, y: number) => {
@@ -58,13 +66,9 @@ export function createSystemCalls(
     return getComponentValue(Action, singletonEntity);
   };
 
-  const initActions = async () => {
-    const tx = await worldSend("initActions", []);
-    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
-    return getComponentValue(Action, singletonEntity);
-  };
 
   return {
+    createPlayer,
     increment,
     setPosition,
     hurt,
@@ -72,7 +76,6 @@ export function createSystemCalls(
     kill,
     revive,
     refill,
-    getActionById,
-    initActions
+    getActionById
   };
 }
