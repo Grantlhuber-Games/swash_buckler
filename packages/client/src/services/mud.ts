@@ -26,11 +26,11 @@ export default async function setupMud(mudApp) {
     const components = mudObj.components;
     const systemCalls = mudObj.systemCalls;
 
-     subscribeToComponents(mudApp, components);
+    subscribeToComponents(mudApp, components);
 
-     registerWindowFunctions(mudApp, mudObj);
+    registerWindowFunctions(mudApp, mudObj);
 
-     mountDevTools();
+    mountDevTools();
 
     /*
     //const { PlayerComponent, PositionComponent, NameComponent } = components
@@ -43,6 +43,8 @@ export default async function setupMud(mudApp) {
         // -> ["Bob", "Alice", "Eve"]
      */
 }
+
+
 /*
 * All subscriptions
 * @param mudApp
@@ -50,25 +52,43 @@ export default async function setupMud(mudApp) {
 */
 function subscribeToComponents(mudApp, components: any) {
     /*
-         components.Character.update$.subscribe((update: any) => {
-             const [nextValue, prevValue] = update.value;
-             console.log("Character updated", update, { nextValue, prevValue });
-             let char = JSON.stringify(nextValue);
-             document.getElementById("character")!.innerHTML = char;
-         });
-        */
+     components.Character.update$.subscribe((update: any) => {
+         const [nextValue, prevValue] = update.value;
+         console.log("Character updated", update, { nextValue, prevValue });
+         let char = JSON.stringify(nextValue);
+         document.getElementById("character")!.innerHTML = char;
+     });
+    */
     let charComp = new CharacterComponent(components.Character, (update: any) => {
         let char = JSON.stringify(update);
         document.getElementById("character")!.innerHTML = char;
     });
-
-
 
     components.Attributes.update$.subscribe((update: any) => {
         const [nextValue, prevValue] = update.value;
         console.log("Attributes updated", update, { nextValue, prevValue });
         let attribs = JSON.stringify(nextValue);
         document.getElementById("attributes")!.innerHTML = attribs;
+    });
+
+    components.Position.update$.subscribe((update: any) => {
+        const [nextValue, prevValue] = update.value;
+        console.log("Position updated", update, { nextValue, prevValue });
+        let coord = String(nextValue?.x ?? "unset") + ", " + String(nextValue?.y ?? "unset");
+       document.getElementById("position")!.innerHTML = coord;
+    });
+
+    components.Health.update$.subscribe((update: any) => {
+        const [nextValue, prevValue] = update.value;
+        console.log("Health updated", update, { nextValue, prevValue });
+        document.getElementById("health")!.innerHTML = String(nextValue?.health ?? "unset");
+    });
+
+    components.Intent.update$.subscribe((update: any) => {
+        const [nextValue, prevValue] = update.value;
+        console.log("Intent updated", update, { nextValue, prevValue });
+        let intent = JSON.stringify(nextValue);
+        document.getElementById("intent")!.innerHTML = intent;
     });
 
     components.Stamina.update$.subscribe((update: any) => {
@@ -86,28 +106,11 @@ function subscribeToComponents(mudApp, components: any) {
         console.log("Action updated", update, { nextValue, prevValue });
     });
 
-
     // Components expose a stream that triggers when the component is updated.
     components.Counter.update$.subscribe((update: any) => {
         const [nextValue, prevValue] = update.value;
         console.log("Counter updated", update, { nextValue, prevValue });
         document.getElementById("counter")!.innerHTML = String(nextValue?.value ?? "unset");
-    });
-
-
-    components.Position.update$.subscribe((update: any) => {
-        const [nextValue, prevValue] = update.value;
-        console.log("Position updated", update, { nextValue, prevValue });
-        let coord = String(nextValue?.x ?? "unset") + ", " + String(nextValue?.y ?? "unset");
-
-
-        document.getElementById("position")!.innerHTML = coord;
-    });
-
-    components.Health.update$.subscribe((update: any) => {
-        const [nextValue, prevValue] = update.value;
-        console.log("Health updated", update, { nextValue, prevValue });
-        document.getElementById("health")!.innerHTML = String(nextValue?.health ?? "unset");
     });
 }
 
@@ -121,13 +124,28 @@ function registerWindowFunctions(mudApp, mudObj: any) {
         components,
         systemCalls: {
             increment,
+            //position system
             setPosition,
+            //health system
             hurt,
             heal,
             kill,
             revive,
             refill,
+
+            // stamina system
+            exhaust,
+            rest,
+            drain,
+            refillStamina,
+            hasSufficientStamina,
+            isExhausted,
+            isFresh,
+
+            //action system
             getActionById,
+
+            //player system
             createPlayer
         },
     } = mudObj;
@@ -184,4 +202,35 @@ function registerWindowFunctions(mudApp, mudObj: any) {
     (window as any).getHealth = async () => {
         console.log("getHealth:", await components.Health);
     };
+
+    // stamina system
+
+    (window as any).exhaust = async (x: number) => {
+        console.log("exhaust:", await exhaust(x));
+    };
+
+    (window as any).rest = async (x: number) => {
+        console.log("rest:", await rest(x));
+    };
+    (window as any).refillStamina = async () => {
+        console.log("refillStamina:", await refillStamina());
+    };
+
+    (window as any).drain = async () => {
+        console.log("drain:", await drain());
+    };
+
+    (window as any).hasSufficientStamina = async (x: number) => {
+        console.log("drain:", await hasSufficientStamina(x));
+    };
+
+    (window as any).isExhausted = async () => {
+        console.log("drain:", await isExhausted());
+    };
+
+    (window as any).isFresh = async () => {
+        console.log("drain:", await isFresh());
+    };
+
+
 }
