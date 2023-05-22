@@ -46,39 +46,44 @@ export default function initPixi(mudApp: any) { // the name of this function is 
 
     const disableMouse = true; // disable mouse movement so that the game can be played with keyboard only
 
+    const PIXI_ASSETS = generateAssetArray(mudApp.getAvatar().character.charClass);
 
-    const PIXI_ASSETS = generateAssetArray(mudApp.myAvatar.character.charClass);
+//    const PIXI_ASSETS = generateAssetArray(mudApp.myAvatar.character.charClass);
 
     app = new PIXI.Application({ width: 1920, height: 1080 }); // this is the game window
     // console.log("app", app.view.width);
     document.body.appendChild(app.view); // app.view is the canvas element currently being used. It contains the game
+
+
     PIXI.Assets.load(PIXI_ASSETS).then(() => {
-        createLevel(app);
-        createHUD(app);
+        console.log("loaded PIXI_ASSETS", PIXI_ASSETS);
 
         const mainContainer = new PIXI.Container();
-        const hudContainer = new PIXI.Container();
+
+        const lvlContainer = new PIXI.Container();
         const playerContainer = new PIXI.Container();
-        GLOBAL_VARS.scene.playerContainer = playerContainer;
-        playerContainer.interactive = true;
+        const hudContainer = new PIXI.Container();
+
         mainContainer.addChild(playerContainer);
-        //const statsContainer = new PIXI.Container();
+        mainContainer.addChild(hudContainer);
+        mainContainer.addChild(lvlContainer);
 
-        const playerSprite = createPlayerAnimated(app, mudApp.myAvatar);
-        playerContainer.addChild(playerSprite);
+        GLOBAL_VARS.scene.playerContainer = playerContainer;
 
+        // add lvl
+        createLevel(app, lvlContainer);
+        app.stage.addChild(lvlContainer); // FIXME if I drop this no avatar is show, I assume because of the order of the containers
 
+        // add huds
+        const globalHud = createHUD(app, hudContainer);
         // createPlayerStats
         const statsTable = createPlayerStats(hudContainer);
-
-
         const hud = createPlayerHud(hudContainer);
 
 
-        app.stage.addChild(hudContainer);
-        //mainContainer.addChild(statsTable);
-
-        //app.stage.interactive = true;
+        // add player
+        const playerSprite = createPlayerAnimated(app, mudApp.myAvatar);
+        playerContainer.addChild(playerSprite);
 
         app.stage.hitArea = app.screen;
 
@@ -132,7 +137,7 @@ export default function initPixi(mudApp: any) { // the name of this function is 
             }
         }
 
-        // Function to toggle fullscreen mode
+        // to add the mainContainer to screen, with everything
         app.stage.addChild(mainContainer);
     });
 }
@@ -171,22 +176,20 @@ function toggleFullscreen() {
     }
 }
 
-function createLevel(app: PIXI.Application) {
+function createLevel(app: PIXI.Application, parentContainer: PIXI.Container) {
     // Create a sprite for the background image
     const randomNumber = Math.floor(Math.random() * 4) + 1;
     const background = PIXI.Sprite.from(`assets/background/background_0${randomNumber}.png`);
     background.width = app.view.width;
     background.height = app.view.height;
-    app.stage.addChild(background);
+    parentContainer.addChild(background);
 }
 
-function createHUD(app: PIXI.Application) {
+function createHUD(app: PIXI.Application, parentContainer: PIXI.Container) {
     // Create a text element for the title
     let text = new PIXI.Text(
         "Swash Buckler", GLOBAL_VARS.textStyle
     );
-    app.stage.addChild(text); // adding to app.stage makes it appear on the screen
-
     // Create a container for the fullscreen button
     const fullscreenButtonContainer = new PIXI.Container();
     // Create a button element for fullscreen
@@ -204,9 +207,13 @@ function createHUD(app: PIXI.Application) {
 
     fullscreenButton.on("click", toggleFullscreen);
 
-    app.stage.addChild(fullscreenButtonContainer);
+
     // Attach the toggleFullscreen function to the button's click event
     fullscreenButton.addEventListener("click", toggleFullscreen);
+
+    parentContainer.addChild(fullscreenButtonContainer, text);
+
+    return fullscreenButtonContainer;
 }
 
 function createPlayer(app: PIXI.Application) {
@@ -509,12 +516,13 @@ function addStatsChangeHandler(app: PIXI.Application, playerSprite: PIXI.Sprite,
 
 
     document.addEventListener("onPlayerCreated", (event)=> {
-        alert("onPlayerCreated")
+        alert("onPlayerCreated");
+
     });
 
     document.addEventListener("onPlayerSpawned", (event)=> {
         //let playerSprite = createPlayerAnimated(app, mudApp.myAvatar);
-        GLOBAL_VARS.scene.player.visible = true;
+
        // GLOBAL_VARS.scene.playerContainer.addChild(playerSprite)
     });
 
