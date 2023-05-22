@@ -21,7 +21,7 @@ contract PlayerSystem is System {
     bytes32 playerEntity = bytes32(uint256(uint160(_msgSender())));
 
     // set Character, Position, Attributes, Health, Stamina, Intent components
-    Character.set(true, name, "Best ever", "knight");
+    Character.set(true, name, "Best ever", "archer");
     Attributes.set(10, 5, 0, 20, 2);
     Position.set(100, 100);
     Health.set(130);

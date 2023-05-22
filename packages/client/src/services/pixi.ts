@@ -15,6 +15,21 @@ const globalVars = {
     pixiStats: {},
 };
 
+/**
+ * Enum for common colors.
+ * @readonly
+ * @enum {{name: string, hex: string}}
+ */
+const ANIMATIONS = Object.freeze({
+    ATTACK_01:   { name: "Attack01", file: "attack_01" },
+    DIE:   { name: "Die" },
+    IDLE:   { name: "Idle" },
+    RISE:   { name: "Rise" },
+    WALK:   { name: "Walk" },
+
+});
+
+
 // This is the game loop
 export default function initPixi(mudApp: any) { // the name of this function is misleading, it should be called startGame
     console.log("myAvatar", mudApp.myAvatar);
@@ -24,21 +39,13 @@ export default function initPixi(mudApp: any) { // the name of this function is 
 
     const disableMouse = true; // disable mouse movement so that the game can be played with keyboard only
 
+
+    const PIXI_ASSETS = generateAssetArray(mudApp.myAvatar.character.charClass);
+
     app = new PIXI.Application({ width: 1920, height: 1080 }); // this is the game window
     // console.log("app", app.view.width);
     document.body.appendChild(app.view); // app.view is the canvas element currently being used. It contains the game
-    PIXI.Assets.load([
-        "assets/background/background_01.png",
-        "assets/background/background_02.png",
-        "assets/background/background_03.png",
-        "assets/background/background_04.png",
-        "assets/sprites/archer/idle.json",
-        "assets/sprites/archer/die.json",
-        "assets/sprites/archer/rise.json",
-        "assets/sprites/archer/walk.json",
-        "assets/sprites/archer/attack_01.json"
-
-    ]).then(() => {
+    PIXI.Assets.load(PIXI_ASSETS).then(() => {
         createLevel(app);
         createHUD(app);
 
@@ -48,7 +55,7 @@ export default function initPixi(mudApp: any) { // the name of this function is 
 
         //const statsContainer = new PIXI.Container();
 
-        const playerSprite = createPlayerAnimated(app);
+        const playerSprite = createPlayerAnimated(app, mudApp.myAvatar);
         playerContainer.addChild(playerSprite);
 
         mainContainer.addChild(playerContainer);
@@ -85,8 +92,60 @@ export default function initPixi(mudApp: any) { // the name of this function is 
         // Function to toggle fullscreen mode
         app.stage.addChild(mainContainer);
     });
-
 }
+
+function generateAssetArray(charClass) {
+    console.log("generateAssetArray", charClass)
+    const assets = [
+        "assets/background/background_01.png",
+        "assets/background/background_02.png",
+        "assets/background/background_03.png",
+        "assets/background/background_04.png",
+/*
+        "assets/sprites/archer/idle.json",
+        "assets/sprites/archer/die.json",
+        "assets/sprites/archer/rise.json",
+        "assets/sprites/archer/walk.json",
+        "assets/sprites/archer/attack_01.json",
+
+
+        "assets/sprites/bandit/idle.json",
+        "assets/sprites/bandit/die.json",
+        "assets/sprites/bandit/rise.json",
+        "assets/sprites/bandit/walk.json",
+        "assets/sprites/bandit/attack_01.json"
+*/
+    ];
+
+    const classesAll = [
+        "archer",
+        "bandit",
+        "death_knight",
+        "necromancer",
+        "warlock",
+        "warrior"
+    ];
+
+    const classes = [charClass];
+    //FIXME use anim enums
+    const animations = [
+        "attack_01",
+        "die",
+        "idle",
+        "rise",
+        "walk"
+    ];
+
+    for(let classEntry of classes) {
+        for(let animEntry of animations) {
+            assets.push("assets/sprites/" + classEntry + "/" + animEntry + ".json")
+        }
+    }
+    console.warn("generateAssets", assets)
+    return assets;
+}
+
+
 
 // FIXME if function has app param it does not work, because view is empty
 function toggleFullscreen() {
@@ -175,9 +234,12 @@ function createPlayer(app: PIXI.Application) {
     return playerSprite;
 }
 
-function createPlayerAnimated(app: PIXI.Application) {
-        console.log("createPlayerAnimated")
-        const animations = PIXI.Assets.cache.get('assets/sprites/archer/idle.json').data.animations;
+function createPlayerAnimated(app: PIXI.Application, avatar) {
+    console.log("createPlayerAnimated", avatar)
+
+
+    const CHAR_CLASS = avatar.character.charClass || "archer";
+        const animations = PIXI.Assets.cache.get('assets/sprites/' + CHAR_CLASS + '/idle.json').data.animations;
         console.log("createPlayerAnimated", animations);
 
         const playerSprite = PIXI.AnimatedSprite.fromFrames(animations["Idle"]);
@@ -190,7 +252,7 @@ function createPlayerAnimated(app: PIXI.Application) {
         // Load the avatar image into a sprite
         //const playerSprite = PIXI.Sprite.from("assets/sprites/");
         playerSprite.position.set(app.view.width / 2 - playerSprite.width / 2, app.view.height / 2 - playerSprite.height / 2); // center the avatar
-        playerSprite.scale.set(0.8); // scale the avatar
+        playerSprite.scale.set(0.5); // scale the avatar
         playerSprite.anchor.set(0.5); // set the anchor to the center of the avatar
         playerSprite.position.set(app.view.width / 2, app.view.height / 2); // make sure that the avatar can't move outside of the screen
 
@@ -199,11 +261,20 @@ function createPlayerAnimated(app: PIXI.Application) {
         return playerSprite;
 }
 
-function animatePlayer(playerSprite: PIXI.Sprite) {
-    console.log("animatePlayer", playerSprite);
-    const animations = PIXI.Assets.cache.get('assets/sprites/archer/die.json').data.animations;
-    console.log("animatePlayer", animations);
-    playerSprite = PIXI.AnimatedSprite.fromFrames(animations["Die"]);
+function animatePlayer(playerSprite: PIXI.AnimatedSprite, avatar, animationType) {
+    console.log("animatePlayer", playerSprite, animationType);
+    const CHAR_CLASS = avatar.character.charClass || "archer";
+    const animFile = animationType.file?animationType.file:animationType.name.toLowerCase();
+    const animations = PIXI.Assets.cache.get('assets/sprites/'  + CHAR_CLASS + "/" + animFile + '.json').data.animations;
+    //console.log("animatePlayer", animations);
+    //playerSprite.stop();
+    //let frameName = animationType.name;
+    let playerSpriteNew = PIXI.AnimatedSprite.fromFrames(animations[animationType.name]);
+    //playerSprite = playerSpriteNew;
+
+    playerSprite.textures = playerSpriteNew.textures;
+
+    playerSprite.play();
     //playerSprite.play();
     return playerSprite;
 }
@@ -319,7 +390,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
             if (playerSprite.position.y != 0) {
                 // Don't move up if the player is at the top of the stage
                 playerSprite.position.y -= boxHeight;
-                playerSprite = animatePlayer(playerSprite);
+                playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.WALK);
                 window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
                 console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
 
@@ -333,6 +404,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
             if (playerSprite.position.y != app.view.height - boxHeight) {
                 // Don't move down if the player is at the bottom of the stage
                 playerSprite.position.y += boxHeight;
+                playerSprite = animatePlayer(playerSprite, ANIMATIONS.WALK);
                 window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
                 console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
             }
@@ -350,6 +422,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
                     playerSprite.scale.x *= -1; // Flip the avatar image horizontally
                     isAvatarFacingRight = false;
                 }
+                playerSprite = animatePlayer(playerSprite, ANIMATIONS.WALK);
                 window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
                 console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
             }
@@ -366,6 +439,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
                     playerSprite.scale.x *= -1; // Flip the avatar image horizontally
                     isAvatarFacingRight = true;
                 }
+                playerSprite = animatePlayer(playerSprite, ANIMATIONS.WALK);
                 window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
                 console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
             }
@@ -378,6 +452,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
             alert("soft Fight call hurt 20 (addintent + wait 5 sec + removeintent)");
             window.addIntent(1);
             window.hurt(20);
+            playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.ATTACK_01);
             setTimeout(() => {
                 window.removeIntent(true);
                  }, 5000);
