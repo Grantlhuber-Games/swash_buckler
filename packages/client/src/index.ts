@@ -2,7 +2,7 @@ import mudService from "./services/mud";
 import Avatar from "./models/Avatar";
 import initPixi from "./services/pixi";
 
-// Setup of the game withing the window
+// Setup of the game within the window
 class App {
   constructor() {
     this.myAvatar = new Avatar({name: "myAvatar", charClass: "archer"}, {"strength": 20}, {x: 0, y: 0}, 100, 100, {intents: 0, actions: []});
