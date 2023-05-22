@@ -2,12 +2,14 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { Health, Position, Action } from "../codegen/Tables.sol";
+import { Health, Position, Action, Intent } from "../codegen/Tables.sol";
 import { ActionData } from "../codegen/tables/Action.sol";
 
 
 contract BattleSystem is System {
 
+  // check if other players are in range and if intent loaded
+  // if both loaded speed higher strikes first
 
   function getActionById(uint8 actionId) public view returns (ActionData memory _table) {
     //bytes32 actionId = bytes32(keccak256("attack"));
