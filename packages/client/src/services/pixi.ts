@@ -32,17 +32,23 @@ export default function initPixi(mudApp: any) { // the name of this function is 
     createHUD(app);
 
     const mainContainer = new PIXI.Container();
+    const playerContainer = new PIXI.Container();
+    playerContainer.interactive = true;
+
+    //const statsContainer = new PIXI.Container();
 
     const playerSprite = createPlayer(app);
-    mainContainer.addChild(playerSprite);
+    playerContainer.addChild(playerSprite);
 
+    mainContainer.addChild(playerContainer);
     // createPlayerStats
-    const statsTable = createPlayerStats(app, playerSprite);
+    const statsTable = createPlayerStats(playerContainer, playerSprite);
     /*
     app.stage.addChild(statsTable);
     mainContainer.addChild(statsTable);
     */
-    app.stage.interactive = true;
+    //app.stage.interactive = true;
+
     app.stage.hitArea = app.screen;
 
 
@@ -164,7 +170,7 @@ function createPlayerStats(container: PIXI.Container, playerSprite: PIXI.Sprite)
     const avatarBounds = playerSprite.getBounds();
     // table to debug print the stats of an avatar
     const table = new PIXI.Container();
-    app.stage.addChild(table);
+    container.addChild(table);
     //container.addChild(table);
 
     // TODO: Wire up the actual values here
@@ -236,9 +242,11 @@ function createPlayerStats(container: PIXI.Container, playerSprite: PIXI.Sprite)
     table.position.x = avatarBounds.width;
 
     playerSprite.on("click", () => {
+        console.log("table", table)
         table.visible = !table.visible;
     });
 
+    // FIXME this is responsible for the table not being visible
     playerSprite.addChild(table); // adding to app.stage makes it appear on the screen
 
     // return mapping easy key value access to update
@@ -262,6 +270,8 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
             if (playerSprite.position.y != 0) {
                 // Don't move up if the player is at the top of the stage
                 playerSprite.position.y -= boxHeight;
+                window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
+                console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
             }
         }
         // S Key is 83
@@ -271,6 +281,8 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
             if (playerSprite.position.y != app.view.height - boxHeight) {
                 // Don't move down if the player is at the bottom of the stage
                 playerSprite.position.y += boxHeight;
+                window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
+                console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
             }
 
         }
@@ -286,6 +298,8 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
                     playerSprite.scale.x *= -1; // Flip the avatar image horizontally
                     isAvatarFacingRight = false;
                 }
+                window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
+                console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
             }
         }
 
@@ -300,6 +314,8 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
                     playerSprite.scale.x *= -1; // Flip the avatar image horizontally
                     isAvatarFacingRight = true;
                 }
+                window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
+                console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
             }
         }
 
@@ -333,8 +349,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
         }
 
         // move to gameloop
-        window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
-        console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
+
 
         playerSprite.emit('onStatsChanged');
 
