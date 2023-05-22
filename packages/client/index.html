@@ -8,48 +8,17 @@
   <body>
     <script type="module" src="/src/index.ts"></script>
     <div>
-      <div>
-        Char: <span id="character"></span>
-        <button onclick="window.createPlayer('Horst Rubesch')">createPlayer</button><br>
-        Attributes: <span id="attributes"></span><br>
-        Position: <span id="position"></span><br>
-        Intent: <span id="intent"></span>
-        <button onclick="window.addIntent(1)">addIntent 1</button>
-        <button onclick="window.removeIntent(false)">removeIntent used=false</button>
-        <button onclick="window.removeIntent(true)">removeIntent used=true</button>
+      <div>Counter: <span id="counter">0</span></div>
+      <button onclick="window.increment()">Increment</button>
 
-        <br>
-      </div>
-
-      <div>
-        Health: <span id="health"> </span> / 100
-        <button onclick="window.refill()">refill</button>
-        <button onclick="window.kill()">kill</button>
-        <button onclick="window.revive()">revive</button>
-        <button onclick="window.heal(20)">heal 20</button>
-        <button onclick="window.hurt(5)">hurt 5</button>
-      </div>
-      <div>
-        Stamina: <span id="stamina"> </span>
-        <button onclick="window.refillStamina()">refillStamina</button>
-        <button onclick="window.drain()">drain</button>
-        <button onclick="window.rest(20)">rest 20</button>
-        <button onclick="window.exhaust(5)">exhaust 5</button>
-      </div>
-
-      <div>
-        Actions: <span id="actions"></span>
-      </div>
-
-      <div>
-        Counter: <span id="counter">0</span>
-        <button onclick="window.increment()" >Increment</button>
-      </div>
-
+      <div>Position: <span id="position"></span></div>
+      <div>Health: <span id="health"> </span> / 100</div>
+      <button onclick="window.refill()">refill</button>
+      <button onclick="window.kill()">kill</button>
+      <button onclick="window.revive()">revive</button>
+      <button onclick="window.heal(20)">heal 20</button>
+      <button onclick="window.hurt(5)">hurt 5</button>
 
     </div>
-
-
-
   </body>
 </html>
