@@ -1,6 +1,6 @@
 import mudService from "./services/mud";
 import Avatar from "./models/Avatar";
-import startGame from "./services/pixi";
+import initPixi from "./services/pixi";
 
 // Setup of the game withing the window
 class App {
@@ -9,9 +9,12 @@ class App {
   }
 
   async init() {
-
     await mudService(this);
-    startGame(this);
+    this.startGame();
+  }
+
+  startGame() {
+    initPixi(this);
   }
 }
 

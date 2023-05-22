@@ -6,15 +6,16 @@ let app = null;
 const globalVars = {
     // for styling the texts
     textStyle: {
-        fontSize: "40px",
+        fontSize: "30px",
         fontWeight: "bold",
         fontFamily: "Arial",
         fill: "white",
-    }
+    },
+    pixiStats: {},
 };
 
 // This is the game loop
-export default function startGame(mudApp: any) { // the name of this function is misleading, it should be called startGame
+export default function initPixi(mudApp: any) { // the name of this function is misleading, it should be called startGame
     console.log("myAvatar", mudApp.myAvatar);
     if(!mudApp) {
         alert("mudApp / avatar is null");
@@ -29,109 +30,23 @@ export default function startGame(mudApp: any) { // the name of this function is
     createLevel(app);
     createHUD(app);
 
+    const mainContainer = new PIXI.Container();
 
-    // Load the avatar image into a sprite
-    let sprite = PIXI.Sprite.from("assets/goblin-gaylord.png");
-    sprite.position.set(app.view.width / 2 - sprite.width / 2, app.view.height / 2 - sprite.height / 2); // center the avatar
+    const playerSprite = createPlayer(app);
+    mainContainer.addChild(playerSprite);
 
-    sprite.scale.set(1); // scale the avatar
-    sprite.anchor.set(0.5); // set the anchor to the center of the avatar
-    sprite.position.set(app.view.width / 2, app.view.height / 2); // make sure that the avatar can't move outside of the screen
-
-
-    const STAT_FIELDS_OBJ = createStats(sprite);
-
-    // Options for how objects interact
-    // How fast the red square moves
-    const movementSpeed = 0.05;
-
+    // createPlayerStats
+    const statsTable = createPlayerStats(app, playerSprite);
+    /*
+    app.stage.addChild(statsTable);
+    mainContainer.addChild(statsTable);
+    */
     app.stage.interactive = true;
     app.stage.hitArea = app.screen;
 
-    // KEYBOARD START
-    // Set the width and height of our boxes
-    const boxWidth = app.view.width / 10;
-    const boxHeight = app.view.height / 10;
-    let isAvatarFacingRight = false;
 
-    function onKeyDown(key) {
-        console.log("keydown", key);
-        // W Key is 87
-        // Up arrow is 87
-        if (key.keyCode === 87 || key.keyCode === 38) {
-            // If the W key or the Up arrow is pressed, move the player up.
-            if (sprite.position.y != 0) {
-                // Don't move up if the player is at the top of the stage
-                sprite.position.y -= boxHeight;
-            }
-        }
-        // S Key is 83
-        // Down arrow is 40
-        if (key.keyCode === 83 || key.keyCode === 40) {
-            // If the S key or the Down arrow is pressed, move the player down.
-            if (sprite.position.y != app.view.height - boxHeight) {
-                // Don't move down if the player is at the bottom of the stage
-                sprite.position.y += boxHeight;
-            }
-        }
 
-        // A Key is 65
-        // Left arrow is 37
-        if (key.keyCode === 65 || key.keyCode === 37) {
-            // If the A key or the Left arrow is pressed, move the player to the left.
-            if (sprite.position.x != 0) {
-                // Don't move to the left if the player is at the left side of the stage
-                sprite.position.x -= boxWidth
-                if (isAvatarFacingRight) {
-                    sprite.scale.x *= -1; // Flip the avatar image horizontally
-                    isAvatarFacingRight = false;
-                }
-            }
-        }
-
-        // D Key is 68
-        // Right arrow is 39
-        if (key.keyCode === 68 || key.keyCode === 39) {
-            // If the D key or the Right arrow is pressed, move the player to the right.
-            if (sprite.position.x != app.view.width - boxWidth) {
-                // Don't move to the right if the player is at the right side of the stage
-                sprite.position.x += boxWidth
-                if (!isAvatarFacingRight) {
-                    sprite.scale.x *= -1; // Flip the avatar image horizontally
-                    isAvatarFacingRight = true;
-                }
-            }
-        }
-
-        // action buttons
-
-        // Y Key is 89
-        if (key.keyCode === 89) {
-            alert("soft Fight call hurt 20");
-            window.hurt(20);
-        }
-        // X key is 88
-        if (key.keyCode === 88) {
-            alert("hard Fight call hurt 50");
-            window.hurt(50);
-        }
-        // C key is 67
-        if (key.keyCode === 67) {
-            alert("counter attack");
-        }
-        // V key is 86
-        if (key.keyCode === 86) {
-            alert("special ability");
-        }
-
-        // move to gameloop
-        window.setPosition(Math.round(sprite.x), Math.round(sprite.y));
-        console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
-        STAT_FIELDS_OBJ["Position"].text = `Position: ${mudApp.myAvatar.position.x}, ${mudApp.myAvatar.position.y}`;
-    }
-    // Add the 'keydown' event listener to our document
-    document.addEventListener("keydown", onKeyDown);
-    //KEYBOARD END
+    addKeyboardHandler(app, playerSprite, mudApp, globalVars.pixiStats);
 
     // mouse events
     const mouseCoords = { x: 0, y: 0 };
@@ -141,88 +56,20 @@ export default function startGame(mudApp: any) { // the name of this function is
     });
     // mouse events end
 
-    // Toggle the visibility of the table on click
-    sprite.interactive = true;
-
 
     // Listen for animate update
     app.ticker.add((delta) => {
-
         if (!disableMouse) {
-            // Applied deacceleration for both squares, done by reducing the
-            // acceleration by 0.01% of the acceleration every loop
-            sprite.acceleration.set(
-                sprite.acceleration.x * 0.99,
-                sprite.acceleration.y * 0.99
-            );
-
-            // If the mouse is off screen, then don't update any further
-            if (
-                app.screen.width > mouseCoords.x ||
-                mouseCoords.x > 0 ||
-                app.screen.height > mouseCoords.y ||
-                mouseCoords.y > 0
-            ) {
-                // Get the red square's center point
-                const redSquareCenterPosition = new PIXI.Point(
-                    sprite.x + sprite.width * 0.5,
-                    sprite.y + sprite.height * 0.5
-                );
-
-                // Calculate the direction vector between the mouse pointer and
-                // the red square
-                const toMouseDirection = new PIXI.Point(
-                    mouseCoords.x - redSquareCenterPosition.x,
-                    mouseCoords.y - redSquareCenterPosition.y
-                );
-
-                // Use the above to figure out the angle that direction has
-                const angleToMouse = Math.atan2(toMouseDirection.y, toMouseDirection.x);
-
-                // Figure out the speed the square should be travelling by, as a
-                // function of how far away from the mouse pointer the red square is
-                const distMouseRedSquare = distanceBetweenTwoPoints(
-                    mouseCoords,
-                    redSquareCenterPosition
-                );
-                const redSpeed = distMouseRedSquare * movementSpeed;
-
-                // Calculate the acceleration of the red square
-                sprite.acceleration.set(
-                    Math.cos(angleToMouse) * redSpeed,
-                    Math.sin(angleToMouse) * redSpeed
-                );
-
-                // Calculate the distance between two given points
-                function distanceBetweenTwoPoints(p1, p2) {
-                    const a = p1.x - p2.x;
-                    const b = p1.y - p2.y;
-
-                    return Math.hypot(a, b);
-                }
-            }
-
-            // Add grantlhuber
-            let oldCoords = { x: sprite.x, y: sprite.y };
-
-            sprite.x += sprite.acceleration.x * delta;
-            sprite.y += sprite.acceleration.y * delta;
-
-            // Add grantlhuber
-            if (
-                Math.round(oldCoords.x) != Math.round(sprite.x) ||
-                Math.round(oldCoords.y) != Math.round(sprite.y)
-            ) {
-                window.setPosition(Math.round(sprite.x), Math.round(sprite.y));
-            }
+            mouseAction(app, playerSprite, mouseCoords, delta);
         }
     });
 
     // Function to toggle fullscreen mode
 
-    app.stage.addChild(sprite);
+    app.stage.addChild(mainContainer);
 }
 
+// FIXME if function has app param it does not work, because view is empty
 function toggleFullscreen() {
     if (document.fullscreenElement) {
         // Exit fullscreen
@@ -255,7 +102,7 @@ function toggleFullscreen() {
     }
 }
 
-function createLevel(app) {
+function createLevel(app: PIXI.Application) {
     // Create a sprite for the background image
     const randomNumber = Math.floor(Math.random() * 4) + 1;
     const background = PIXI.Sprite.from(`assets/background_0${randomNumber}.png`);
@@ -264,7 +111,7 @@ function createLevel(app) {
     app.stage.addChild(background);
 }
 
-function createHUD(app) {
+function createHUD(app: PIXI.Application) {
     // Create a text element for the title
     let text = new PIXI.Text(
         "Swash Buckler", globalVars.textStyle
@@ -283,23 +130,39 @@ function createHUD(app) {
     // Make it interactive to enable mouse and touch events
     fullscreenButton.interactive = true;
     fullscreenButtonContainer.addChild(fullscreenButton);
+
     // Attach a click event listener to the fullscreen button
+
     fullscreenButton.on("click", toggleFullscreen);
+
     app.stage.addChild(fullscreenButtonContainer);
     // Attach the toggleFullscreen function to the button's click event
     fullscreenButton.addEventListener("click", toggleFullscreen);
+}
+
+function createPlayer(app: PIXI.Application) {
+    // Load the avatar image into a sprite
+    const playerSprite = PIXI.Sprite.from("assets/goblin-gaylord.png");
+    playerSprite.position.set(app.view.width / 2 - playerSprite.width / 2, app.view.height / 2 - playerSprite.height / 2); // center the avatar
+    playerSprite.scale.set(1); // scale the avatar
+    playerSprite.anchor.set(0.5); // set the anchor to the center of the avatar
+    playerSprite.position.set(app.view.width / 2, app.view.height / 2); // make sure that the avatar can't move outside of the screen
+    // Toggle the visibility of the table on click
+    playerSprite.interactive = true;
+    return playerSprite;
 }
 
 /**
  *
  * @param playerSprite
  */
-function createStats(playerSprite) {
+function createPlayerStats(container: PIXI.Container, playerSprite: PIXI.Sprite) {
 
     const avatarBounds = playerSprite.getBounds();
     // table to debug print the stats of an avatar
     const table = new PIXI.Container();
     app.stage.addChild(table);
+    //container.addChild(table);
 
     // TODO: Wire up the actual values here
 
@@ -339,7 +202,7 @@ function createStats(playerSprite) {
         let statText = new PIXI.Text(`${stat.name}: ${stat.value}`, globalVars.textStyle);
         statText.position.y = statText.position.y + counterYDist * DISTANCE_BETWEEN_Y;
         table.addChild(statText);
-        pixiObjRet[stat.name] = statText;
+        globalVars.pixiStats[stat.name] = statText;
         pixiRetElement.push(statText);
         counterYDist++;
     }
@@ -349,6 +212,19 @@ function createStats(playerSprite) {
     console.log("tableWidth", tableWidth)
 
 
+
+    /*
+    const bg = new PIXI.Sprite(PIXI.Texture.WHITE);
+    bg.width = tableWidth;
+    bg.pivot.set(tableWidth / 2, tableHeight / 2)
+    bg.height = table.height;
+    bg.position.x = table.position.x;// = table.position.x;
+    bg.position.y = table.position.y;// = table.position.x;
+    bg.tint = 0x000000;
+    bg.height = 450;
+    bg.height = table.height * 2;
+    table.addChild(bg)
+     */
     const tableHeight = 450;
     table.pivot.set(tableWidth / 2, tableHeight / 2); // set the pivot to the center of the table
     table.scale.set(0.5);
@@ -362,5 +238,165 @@ function createStats(playerSprite) {
     playerSprite.addChild(table); // adding to app.stage makes it appear on the screen
 
     // return mapping easy key value access to update
-    return pixiObjRet;
+    return table;
+}
+
+function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mudApp, pixiObjRet) {
+    // KEYBOARD START
+    // Set the width and height of our boxes
+    const boxWidth = app.view.width / 10;
+    const boxHeight = app.view.height / 10;
+    let isAvatarFacingRight = false;
+
+    function onKeyDown(key) {
+        console.log("keydown", key);
+        // W Key is 87
+        // Up arrow is 87
+        if (key.keyCode === 87 || key.keyCode === 38) {
+            // If the W key or the Up arrow is pressed, move the player up.
+            if (playerSprite.position.y != 0) {
+                // Don't move up if the player is at the top of the stage
+                playerSprite.position.y -= boxHeight;
+            }
+        }
+        // S Key is 83
+        // Down arrow is 40
+        if (key.keyCode === 83 || key.keyCode === 40) {
+            // If the S key or the Down arrow is pressed, move the player down.
+            if (playerSprite.position.y != app.view.height - boxHeight) {
+                // Don't move down if the player is at the bottom of the stage
+                playerSprite.position.y += boxHeight;
+            }
+        }
+
+        // A Key is 65
+        // Left arrow is 37
+        if (key.keyCode === 65 || key.keyCode === 37) {
+            // If the A key or the Left arrow is pressed, move the player to the left.
+            if (playerSprite.position.x != 0) {
+                // Don't move to the left if the player is at the left side of the stage
+                playerSprite.position.x -= boxWidth
+                if (isAvatarFacingRight) {
+                    playerSprite.scale.x *= -1; // Flip the avatar image horizontally
+                    isAvatarFacingRight = false;
+                }
+            }
+        }
+
+        // D Key is 68
+        // Right arrow is 39
+        if (key.keyCode === 68 || key.keyCode === 39) {
+            // If the D key or the Right arrow is pressed, move the player to the right.
+            if (playerSprite.position.x != app.view.width - boxWidth) {
+                // Don't move to the right if the player is at the right side of the stage
+                playerSprite.position.x += boxWidth
+                if (!isAvatarFacingRight) {
+                    playerSprite.scale.x *= -1; // Flip the avatar image horizontally
+                    isAvatarFacingRight = true;
+                }
+            }
+        }
+
+        // action buttons
+
+        // Y Key is 89
+        if (key.keyCode === 89) {
+            alert("soft Fight call hurt 20");
+            window.hurt(20);
+        }
+        // X key is 88
+        if (key.keyCode === 88) {
+            alert("hard Fight call hurt 50");
+            window.hurt(50);
+        }
+        // C key is 67
+        if (key.keyCode === 67) {
+            alert("counter attack");
+        }
+        // V key is 86
+        if (key.keyCode === 86) {
+            alert("special ability");
+        }
+
+        // move to gameloop
+        window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
+        console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
+        pixiObjRet["Position"].text = `Position: ${mudApp.myAvatar.position.x}, ${mudApp.myAvatar.position.y}`;
+    }
+    // Add the 'keydown' event listener to our document
+    document.addEventListener("keydown", onKeyDown);
+    //KEYBOARD END
+}
+
+function mouseAction(app: PIXI.Application, playerSprite: PIXI.Sprite, mouseCoords: any, delta: number) {
+    // Options for how objects interact
+    // How fast the red square moves
+    const movementSpeed = 0.05;
+
+    // Applied deacceleration for both squares, done by reducing the
+    // acceleration by 0.01% of the acceleration every loop
+    playerSprite.acceleration.set(
+        playerSprite.acceleration.x * 0.99,
+        playerSprite.acceleration.y * 0.99
+    );
+
+    // If the mouse is off screen, then don't update any further
+    if (
+        app.screen.width > mouseCoords.x ||
+        mouseCoords.x > 0 ||
+        app.screen.height > mouseCoords.y ||
+        mouseCoords.y > 0
+    ) {
+        // Get the red square's center point
+        const redSquareCenterPosition = new PIXI.Point(
+            playerSprite.x + playerSprite.width * 0.5,
+            playerSprite.y + playerSprite.height * 0.5
+        );
+
+        // Calculate the direction vector between the mouse pointer and
+        // the red square
+        const toMouseDirection = new PIXI.Point(
+            mouseCoords.x - redSquareCenterPosition.x,
+            mouseCoords.y - redSquareCenterPosition.y
+        );
+
+        // Use the above to figure out the angle that direction has
+        const angleToMouse = Math.atan2(toMouseDirection.y, toMouseDirection.x);
+
+        // Figure out the speed the square should be travelling by, as a
+        // function of how far away from the mouse pointer the red square is
+        const distMouseRedSquare = distanceBetweenTwoPoints(
+            mouseCoords,
+            redSquareCenterPosition
+        );
+        const redSpeed = distMouseRedSquare * movementSpeed;
+
+        // Calculate the acceleration of the red square
+        playerSprite.acceleration.set(
+            Math.cos(angleToMouse) * redSpeed,
+            Math.sin(angleToMouse) * redSpeed
+        );
+
+        // Calculate the distance between two given points
+        function distanceBetweenTwoPoints(p1, p2) {
+            const a = p1.x - p2.x;
+            const b = p1.y - p2.y;
+
+            return Math.hypot(a, b);
+        }
+    }
+
+    // Add grantlhuber
+    let oldCoords = { x: playerSprite.x, y: playerSprite.y };
+
+    playerSprite.x += playerSprite.acceleration.x * delta;
+    playerSprite.y += playerSprite.acceleration.y * delta;
+
+    // Add grantlhuber
+    if (
+        Math.round(oldCoords.x) != Math.round(playerSprite.x) ||
+        Math.round(oldCoords.y) != Math.round(playerSprite.y)
+    ) {
+        window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
+    }
 }
