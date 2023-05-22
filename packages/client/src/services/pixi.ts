@@ -27,52 +27,65 @@ export default function initPixi(mudApp: any) { // the name of this function is 
     app = new PIXI.Application({ width: 1920, height: 1080 }); // this is the game window
     // console.log("app", app.view.width);
     document.body.appendChild(app.view); // app.view is the canvas element currently being used. It contains the game
+    PIXI.Assets.load([
+        "assets/background/background_01.png",
+        "assets/background/background_02.png",
+        "assets/background/background_03.png",
+        "assets/background/background_04.png",
+        "assets/sprites/archer/idle.json",
+        "assets/sprites/archer/die.json",
+        "assets/sprites/archer/rise.json",
+        "assets/sprites/archer/walk.json",
+        "assets/sprites/archer/attack_01.json"
 
-    createLevel(app);
-    createHUD(app);
+    ]).then(() => {
+        createLevel(app);
+        createHUD(app);
 
-    const mainContainer = new PIXI.Container();
-    const playerContainer = new PIXI.Container();
-    playerContainer.interactive = true;
+        const mainContainer = new PIXI.Container();
+        const playerContainer = new PIXI.Container();
+        playerContainer.interactive = true;
 
-    //const statsContainer = new PIXI.Container();
+        //const statsContainer = new PIXI.Container();
 
-    const playerSprite = createPlayer(app);
-    playerContainer.addChild(playerSprite);
+        const playerSprite = createPlayerAnimated(app);
+        playerContainer.addChild(playerSprite);
 
-    mainContainer.addChild(playerContainer);
-    // createPlayerStats
-    const statsTable = createPlayerStats(playerContainer, playerSprite);
-    /*
-    app.stage.addChild(statsTable);
-    mainContainer.addChild(statsTable);
-    */
-    //app.stage.interactive = true;
+        mainContainer.addChild(playerContainer);
+        // createPlayerStats
+        const statsTable = createPlayerStats(playerContainer, playerSprite);
+        /*
+        app.stage.addChild(statsTable);
+        mainContainer.addChild(statsTable);
+        */
+        //app.stage.interactive = true;
 
-    app.stage.hitArea = app.screen;
+        app.stage.hitArea = app.screen;
 
 
-    addKeyboardHandler(app, playerSprite, mudApp, globalVars.pixiStats);
-    addStatsChangeHandler(app, playerSprite, mudApp, globalVars.pixiStats);
+        addKeyboardHandler(app, playerSprite, mudApp, globalVars.pixiStats);
+        addStatsChangeHandler(app, playerSprite, mudApp, globalVars.pixiStats);
 
-    // mouse events
-    const mouseCoords = { x: 0, y: 0 };
-    app.stage.on("mousemove", (event) => {
-        mouseCoords.x = event.global.x;
-        mouseCoords.y = event.global.y;
+        // mouse events
+        const mouseCoords = { x: 0, y: 0 };
+        app.stage.on("mousemove", (event) => {
+            mouseCoords.x = event.global.x;
+            mouseCoords.y = event.global.y;
+        });
+        // mouse events end
+
+
+        // Listen for animate update
+        app.ticker.add((delta) => {
+            if (!disableMouse) {
+                mouseAction(app, playerSprite, mouseCoords, delta);
+            }
+        });
+
+        // Function to toggle fullscreen mode
+        app.stage.addChild(mainContainer);
     });
-    // mouse events end
 
-
-    // Listen for animate update
-    app.ticker.add((delta) => {
-        if (!disableMouse) {
-            mouseAction(app, playerSprite, mouseCoords, delta);
-        }
-    });
-
-    // Function to toggle fullscreen mode
-    app.stage.addChild(mainContainer);
 }
 
 // FIXME if function has app param it does not work, because view is empty
@@ -114,7 +127,7 @@ function toggleFullscreen() {
 function createLevel(app: PIXI.Application) {
     // Create a sprite for the background image
     const randomNumber = Math.floor(Math.random() * 4) + 1;
-    const background = PIXI.Sprite.from(`assets/background_0${randomNumber}.png`);
+    const background = PIXI.Sprite.from(`assets/background/background_0${randomNumber}.png`);
     background.width = app.view.width;
     background.height = app.view.height;
     app.stage.addChild(background);
@@ -156,10 +169,45 @@ function createPlayer(app: PIXI.Application) {
     playerSprite.scale.set(1); // scale the avatar
     playerSprite.anchor.set(0.5); // set the anchor to the center of the avatar
     playerSprite.position.set(app.view.width / 2, app.view.height / 2); // make sure that the avatar can't move outside of the screen
+
     // Toggle the visibility of the table on click
     playerSprite.interactive = true;
     return playerSprite;
 }
+
+function createPlayerAnimated(app: PIXI.Application) {
+        console.log("createPlayerAnimated")
+        const animations = PIXI.Assets.cache.get('assets/sprites/archer/idle.json').data.animations;
+        console.log("createPlayerAnimated", animations);
+
+        const playerSprite = PIXI.AnimatedSprite.fromFrames(animations["Idle"]);
+        console.log(playerSprite);
+        // configure + start animation:
+        playerSprite.animationSpeed = 1 / 5                      // 6 fps
+        //playerSprite.position.set(1500, background.height - 780); // almost bottom-left corner of the canvas
+        playerSprite.play();
+
+        // Load the avatar image into a sprite
+        //const playerSprite = PIXI.Sprite.from("assets/sprites/");
+        playerSprite.position.set(app.view.width / 2 - playerSprite.width / 2, app.view.height / 2 - playerSprite.height / 2); // center the avatar
+        playerSprite.scale.set(0.8); // scale the avatar
+        playerSprite.anchor.set(0.5); // set the anchor to the center of the avatar
+        playerSprite.position.set(app.view.width / 2, app.view.height / 2); // make sure that the avatar can't move outside of the screen
+
+        // Toggle the visibility of the table on click
+        playerSprite.interactive = true;
+        return playerSprite;
+}
+
+function animatePlayer(playerSprite: PIXI.Sprite) {
+    console.log("animatePlayer", playerSprite);
+    const animations = PIXI.Assets.cache.get('assets/sprites/archer/die.json').data.animations;
+    console.log("animatePlayer", animations);
+    playerSprite = PIXI.AnimatedSprite.fromFrames(animations["Die"]);
+    playerSprite.play();
+}
+
+
 
 /**
  *
@@ -270,8 +318,11 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
             if (playerSprite.position.y != 0) {
                 // Don't move up if the player is at the top of the stage
                 playerSprite.position.y -= boxHeight;
+                animatePlayer(playerSprite);
                 window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
                 console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
+
+
             }
         }
         // S Key is 83
