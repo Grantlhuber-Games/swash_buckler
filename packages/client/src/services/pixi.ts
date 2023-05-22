@@ -378,7 +378,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
     // Set the width and height of our boxes
     const boxWidth = app.view.width / 10;
     const boxHeight = app.view.height / 10;
-    let isAvatarFacingRight = false;
+    let isAvatarFacingRight = true;
 
     // delegates
     function onKeyDown(key) {
