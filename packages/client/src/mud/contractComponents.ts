@@ -94,7 +94,7 @@ export function defineContractComponents(world: World) {
         world,
         {
           intents: RecsType.Number,
-          actions: RecsType.StringArray,
+          actions: RecsType.NumberArray,
         },
         {
           metadata: {

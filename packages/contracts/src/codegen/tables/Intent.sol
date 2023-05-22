@@ -22,7 +22,7 @@ bytes32 constant IntentTableId = _tableId;
 
 struct IntentData {
   uint8 intents;
-  bytes32[2] actions;
+  uint8[2] actions;
 }
 
 library Intent {
@@ -30,7 +30,7 @@ library Intent {
   function getSchema() internal pure returns (Schema) {
     SchemaType[] memory _schema = new SchemaType[](2);
     _schema[0] = SchemaType.UINT8;
-    _schema[1] = SchemaType.BYTES32_ARRAY;
+    _schema[1] = SchemaType.UINT8_ARRAY;
 
     return SchemaLib.encode(_schema);
   }
@@ -102,33 +102,33 @@ library Intent {
   }
 
   /** Get actions */
-  function getActions() internal view returns (bytes32[2] memory actions) {
+  function getActions() internal view returns (uint8[2] memory actions) {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1);
-    return toStaticArray_bytes32_2(SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
+    return toStaticArray_uint8_2(SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint8());
   }
 
   /** Get actions (using the specified store) */
-  function getActions(IStore _store) internal view returns (bytes32[2] memory actions) {
+  function getActions(IStore _store) internal view returns (uint8[2] memory actions) {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 1);
-    return toStaticArray_bytes32_2(SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_bytes32());
+    return toStaticArray_uint8_2(SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint8());
   }
 
   /** Set actions */
-  function setActions(bytes32[2] memory actions) internal {
+  function setActions(uint8[2] memory actions) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    StoreSwitch.setField(_tableId, _keyTuple, 1, EncodeArray.encode(fromStaticArray_bytes32_2(actions)));
+    StoreSwitch.setField(_tableId, _keyTuple, 1, EncodeArray.encode(fromStaticArray_uint8_2(actions)));
   }
 
   /** Set actions (using the specified store) */
-  function setActions(IStore _store, bytes32[2] memory actions) internal {
+  function setActions(IStore _store, uint8[2] memory actions) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    _store.setField(_tableId, _keyTuple, 1, EncodeArray.encode(fromStaticArray_bytes32_2(actions)));
+    _store.setField(_tableId, _keyTuple, 1, EncodeArray.encode(fromStaticArray_uint8_2(actions)));
   }
 
   /** Get the length of actions */
@@ -136,7 +136,7 @@ library Intent {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
     uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 1, getSchema());
-    return _byteLength / 32;
+    return _byteLength / 1;
   }
 
   /** Get the length of actions (using the specified store) */
@@ -144,34 +144,34 @@ library Intent {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
     uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 1, getSchema());
-    return _byteLength / 32;
+    return _byteLength / 1;
   }
 
   /** Get an item of actions (unchecked, returns invalid data if index overflows) */
-  function getItemActions(uint256 _index) internal view returns (bytes32) {
+  function getItemActions(uint256 _index) internal view returns (uint8) {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 1, getSchema(), _index * 32, (_index + 1) * 32);
-    return (Bytes.slice32(_blob, 0));
+    bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 1, getSchema(), _index * 1, (_index + 1) * 1);
+    return (uint8(Bytes.slice1(_blob, 0)));
   }
 
   /** Get an item of actions (using the specified store) (unchecked, returns invalid data if index overflows) */
-  function getItemActions(IStore _store, uint256 _index) internal view returns (bytes32) {
+  function getItemActions(IStore _store, uint256 _index) internal view returns (uint8) {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 1, getSchema(), _index * 32, (_index + 1) * 32);
-    return (Bytes.slice32(_blob, 0));
+    bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 1, getSchema(), _index * 1, (_index + 1) * 1);
+    return (uint8(Bytes.slice1(_blob, 0)));
   }
 
   /** Push an element to actions */
-  function pushActions(bytes32 _element) internal {
+  function pushActions(uint8 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
     StoreSwitch.pushToField(_tableId, _keyTuple, 1, abi.encodePacked((_element)));
   }
 
   /** Push an element to actions (using the specified store) */
-  function pushActions(IStore _store, bytes32 _element) internal {
+  function pushActions(IStore _store, uint8 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
     _store.pushToField(_tableId, _keyTuple, 1, abi.encodePacked((_element)));
@@ -181,28 +181,28 @@ library Intent {
   function popActions() internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    StoreSwitch.popFromField(_tableId, _keyTuple, 1, 32);
+    StoreSwitch.popFromField(_tableId, _keyTuple, 1, 1);
   }
 
   /** Pop an element from actions (using the specified store) */
   function popActions(IStore _store) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    _store.popFromField(_tableId, _keyTuple, 1, 32);
+    _store.popFromField(_tableId, _keyTuple, 1, 1);
   }
 
   /** Update an element of actions at `_index` */
-  function updateActions(uint256 _index, bytes32 _element) internal {
+  function updateActions(uint256 _index, uint8 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    StoreSwitch.updateInField(_tableId, _keyTuple, 1, _index * 32, abi.encodePacked((_element)));
+    StoreSwitch.updateInField(_tableId, _keyTuple, 1, _index * 1, abi.encodePacked((_element)));
   }
 
   /** Update an element of actions (using the specified store) at `_index` */
-  function updateActions(IStore _store, uint256 _index, bytes32 _element) internal {
+  function updateActions(IStore _store, uint256 _index, uint8 _element) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    _store.updateInField(_tableId, _keyTuple, 1, _index * 32, abi.encodePacked((_element)));
+    _store.updateInField(_tableId, _keyTuple, 1, _index * 1, abi.encodePacked((_element)));
   }
 
   /** Get the full data */
@@ -222,7 +222,7 @@ library Intent {
   }
 
   /** Set the full data using individual values */
-  function set(uint8 intents, bytes32[2] memory actions) internal {
+  function set(uint8 intents, uint8[2] memory actions) internal {
     bytes memory _data = encode(intents, actions);
 
     bytes32[] memory _keyTuple = new bytes32[](0);
@@ -231,7 +231,7 @@ library Intent {
   }
 
   /** Set the full data using individual values (using the specified store) */
-  function set(IStore _store, uint8 intents, bytes32[2] memory actions) internal {
+  function set(IStore _store, uint8 intents, uint8[2] memory actions) internal {
     bytes memory _data = encode(intents, actions);
 
     bytes32[] memory _keyTuple = new bytes32[](0);
@@ -264,17 +264,17 @@ library Intent {
 
       _start = _end;
       _end += _encodedLengths.atIndex(0);
-      _table.actions = toStaticArray_bytes32_2(SliceLib.getSubslice(_blob, _start, _end).decodeArray_bytes32());
+      _table.actions = toStaticArray_uint8_2(SliceLib.getSubslice(_blob, _start, _end).decodeArray_uint8());
     }
   }
 
   /** Tightly pack full data using this table's schema */
-  function encode(uint8 intents, bytes32[2] memory actions) internal view returns (bytes memory) {
+  function encode(uint8 intents, uint8[2] memory actions) internal view returns (bytes memory) {
     uint40[] memory _counters = new uint40[](1);
-    _counters[0] = uint40(actions.length * 32);
+    _counters[0] = uint40(actions.length * 1);
     PackedCounter _encodedLengths = PackedCounterLib.pack(_counters);
 
-    return abi.encodePacked(intents, _encodedLengths.unwrap(), EncodeArray.encode(fromStaticArray_bytes32_2(actions)));
+    return abi.encodePacked(intents, _encodedLengths.unwrap(), EncodeArray.encode(fromStaticArray_uint8_2(actions)));
   }
 
   /** Encode keys as a bytes32 array using this table's schema */
@@ -297,15 +297,15 @@ library Intent {
   }
 }
 
-function toStaticArray_bytes32_2(bytes32[] memory _value) pure returns (bytes32[2] memory _result) {
+function toStaticArray_uint8_2(uint8[] memory _value) pure returns (uint8[2] memory _result) {
   // in memory static arrays are just dynamic arrays without the length byte
   assembly {
     _result := add(_value, 0x20)
   }
 }
 
-function fromStaticArray_bytes32_2(bytes32[2] memory _value) view returns (bytes32[] memory _result) {
-  _result = new bytes32[](2);
+function fromStaticArray_uint8_2(uint8[2] memory _value) view returns (uint8[] memory _result) {
+  _result = new uint8[](2);
   uint256 fromPointer;
   uint256 toPointer;
   assembly {

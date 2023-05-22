@@ -153,10 +153,10 @@ function createCallsForStaminaSystem(
 
 function createCallsForPlayerSystem(
     { worldSend, txReduced$, singletonEntity }: SetupNetworkResult,
-    Stamina: ClientComponents
+    Character: ClientComponents
 ) {
-  const createPlayer = async () => {
-    const tx = await worldSend("createPlayer", ["John"]);
+  const createPlayer = async (name: string) => {
+    const tx = await worldSend("createPlayer", [name]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
     return getComponentValue(Character, singletonEntity);
   };

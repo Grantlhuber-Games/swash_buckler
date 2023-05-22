@@ -9,13 +9,12 @@
     <script type="module" src="/src/index.ts"></script>
     <div>
       <div>
-        Counter: <span id="counter">0</span>
-        <button onclick="window.increment()" >Increment</button>
+        Char: <span id="character"></span><button onclick="window.createPlayer('Horst Rubesch')">createPlayer</button><br>
+        Attributes: <span id="attributes"></span><br>
+        Position: <span id="position"></span><br>
+        Intent: <span id="intent"></span>
       </div>
 
-      <div>Char: <span id="character"></span></div>
-      <div>Attributes: <span id="attributes"></span></div>
-      <div>Position: <span id="position"></span></div>
       <div>
         Health: <span id="health"> </span> / 100
         <button onclick="window.refill()">refill</button>
@@ -30,6 +29,15 @@
         <button onclick="window.drain()">drain</button>
         <button onclick="window.rest(20)">rest 20</button>
         <button onclick="window.exhaust(5)">exhaust 5</button>
+      </div>
+
+      <div>
+        Actions: <span id="actions"></span>
+      </div>
+
+      <div>
+        Counter: <span id="counter">0</span>
+        <button onclick="window.increment()" >Increment</button>
       </div>
 
 

@@ -47,7 +47,8 @@ contract StaminaSystem is System {
     * @param redVal amount to decrement
     * @return new stamina value
     */
-  function exhaust(uint32 redVal) public returns (uint32){
+  function exhaust(uint32 redVal) public requireIsNotExhausted returns (uint32) {
+
     uint32 stamina = Stamina.get();
     uint32 newValue = 0;
     // uint so no underflow
@@ -95,7 +96,7 @@ contract StaminaSystem is System {
   }
   modifier requireIsNotExhausted()
   {
-    require(isExhausted(), "Player is not exhausted... yet.");
+    require(!isExhausted(), "Player is exhausted... yet.");
     _;
   }
   modifier requireIsFresh()

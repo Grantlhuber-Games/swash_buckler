@@ -62,6 +62,8 @@ function subscribeToComponents(mudApp, components: any) {
     let charComp = new CharacterComponent(components.Character, (update: any) => {
         let char = JSON.stringify(update);
         document.getElementById("character")!.innerHTML = char;
+        console.log("Character updated", update);
+        mudApp.myAvatar.setCharacter(update[0]);
     });
 
     components.Attributes.update$.subscribe((update: any) => {
@@ -69,6 +71,8 @@ function subscribeToComponents(mudApp, components: any) {
         console.log("Attributes updated", update, { nextValue, prevValue });
         let attribs = JSON.stringify(nextValue);
         document.getElementById("attributes")!.innerHTML = attribs;
+        mudApp.myAvatar.setAttributes(nextValue);
+
     });
 
     components.Position.update$.subscribe((update: any) => {
@@ -82,6 +86,8 @@ function subscribeToComponents(mudApp, components: any) {
         const [nextValue, prevValue] = update.value;
         console.log("Health updated", update, { nextValue, prevValue });
         document.getElementById("health")!.innerHTML = String(nextValue?.health ?? "unset");
+        mudApp.myAvatar.health = nextValue?.health;
+        console.log("mudApp.myAvatar", mudApp.myAvatar)
     });
 
     components.Intent.update$.subscribe((update: any) => {
@@ -89,6 +95,7 @@ function subscribeToComponents(mudApp, components: any) {
         console.log("Intent updated", update, { nextValue, prevValue });
         let intent = JSON.stringify(nextValue);
         document.getElementById("intent")!.innerHTML = intent;
+        mudApp.myAvatar.setIntent(nextValue);
     });
 
     components.Stamina.update$.subscribe((update: any) => {
@@ -96,6 +103,7 @@ function subscribeToComponents(mudApp, components: any) {
         console.log("Stamina updated", update, { nextValue, prevValue });
         let stamina = JSON.stringify(nextValue);
         document.getElementById("stamina")!.innerHTML = stamina;
+        mudApp.myAvatar.stamina = nextValue?.stamina;
     });
 
     // alternative you can get
@@ -163,7 +171,7 @@ function registerWindowFunctions(mudApp, mudObj: any) {
     };
 
     (window as any).createPlayer = async (name: string) => {
-        console.log("new counter value:", await createPlayer(name));
+        console.log("new player:", await createPlayer(name));
     };
 
     (window as any).setPosition = async (x: number, y: number) => {

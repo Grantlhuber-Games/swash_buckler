@@ -1,9 +1,52 @@
 export default class Avatar {
-    constructor(_name, _position, _health, _stamina) {
-        this.name = _name;
+    constructor(_characterObj, _attributesObj, _position, _health, _stamina, _intentObj) {
+
+        this.character = {
+            name: _characterObj.name,
+            human: _characterObj.human,
+            description: _characterObj.description,
+            charClass: _characterObj.charClass
+        }
+
+        this.attributes = {
+            strength: _attributesObj.strength,
+            dexterity: _attributesObj.dexterity,
+            mana: _attributesObj.mana,
+            armor: _attributesObj.armor,
+            speed: _attributesObj.speed
+        }
         this.position = _position;
         this.health = _health;
         this.stamina = _stamina;
+        this.intent = {
+            intents: _intentObj.intents,
+            actions: _intentObj.actions,
+        }
+    }
+
+    private setCharacterByField(_name, _human, _description, _charClass) {
+        console.log("avatar: setCharacter", _name, _human, _description, _charClass)
+        this.character = {
+            name: _name,
+            human: _human,
+            description: _description,
+            charClass: _charClass
+        }
+    }
+
+    public setCharacter(obj: any) {
+        console.log("avatar: setCharacterByObject", obj)
+       this.character = JSON.parse(JSON.stringify(obj));
+    }
+
+    public setAttributes(obj: any) {
+        console.log("avatar: setAttributes", obj)
+        this.attributes = JSON.parse(JSON.stringify(obj));
+    }
+
+    public setIntent(obj: any) {
+        console.log("avatar: setIntent", obj)
+        this.intent = JSON.parse(JSON.stringify(obj));
     }
 
 /*

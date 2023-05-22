@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js";
+import attributes from "contracts/src/models/Attributes.mjs";
 
 // PIXI_APP
 let app = null;
@@ -45,8 +46,8 @@ export default function initPixi(mudApp: any) { // the name of this function is 
     app.stage.hitArea = app.screen;
 
 
-
     addKeyboardHandler(app, playerSprite, mudApp, globalVars.pixiStats);
+    addStatsChangeHandler(app, playerSprite, mudApp, globalVars.pixiStats);
 
     // mouse events
     const mouseCoords = { x: 0, y: 0 };
@@ -65,12 +66,14 @@ export default function initPixi(mudApp: any) { // the name of this function is 
     });
 
     // Function to toggle fullscreen mode
-
     app.stage.addChild(mainContainer);
 }
 
 // FIXME if function has app param it does not work, because view is empty
 function toggleFullscreen() {
+
+
+
     if (document.fullscreenElement) {
         // Exit fullscreen
         if (document.exitFullscreen) {
@@ -172,6 +175,10 @@ function createPlayerStats(container: PIXI.Container, playerSprite: PIXI.Sprite)
             value: "none"
         },
         {
+            name: "Attributes",
+            value: "none"
+        },
+        {
             name: "Health",
             value: "none"
         },
@@ -183,17 +190,14 @@ function createPlayerStats(container: PIXI.Container, playerSprite: PIXI.Sprite)
             name: "Position",
             value: "none"
         },/*
-        {
-            name: "Attributes",
-            value: "none"
-        },
+
         {
             name: "Intent",
             value: "none"
         }*/
     ];
 
-    const DISTANCE_BETWEEN_Y = 50;
+    const DISTANCE_BETWEEN_Y = 30;
     let pixiRetElement = [],
         pixiObjRet = {},
         counterYDist = 0;
@@ -248,6 +252,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
     const boxHeight = app.view.height / 10;
     let isAvatarFacingRight = false;
 
+    // delegates
     function onKeyDown(key) {
         console.log("keydown", key);
         // W Key is 87
@@ -267,6 +272,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
                 // Don't move down if the player is at the bottom of the stage
                 playerSprite.position.y += boxHeight;
             }
+
         }
 
         // A Key is 65
@@ -321,11 +327,34 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
         // move to gameloop
         window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
         console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
-        pixiObjRet["Position"].text = `Position: ${mudApp.myAvatar.position.x}, ${mudApp.myAvatar.position.y}`;
+
+        playerSprite.emit('onStatsChanged');
+
     }
     // Add the 'keydown' event listener to our document
     document.addEventListener("keydown", onKeyDown);
     //KEYBOARD END
+}
+
+function addStatsChangeHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mudApp, pixiObjRet) {
+
+
+
+    const onStatsChanged = (event) => {
+        console.log("onStatsChanged", event);
+        const character = mudApp.myAvatar.character;
+        const attributes = mudApp.myAvatar.attributes;
+        pixiObjRet["Name"].text = `Name (Class): ${character.name} (${character.charClass})`;
+        pixiObjRet["Attributes"].text = `Attributes (St, Dex, Mana, Armor, Speed): ${attributes.strength}, ${attributes.dexterity}, ${attributes.mana}, ${attributes.armor}, ${attributes.speed}`;
+        pixiObjRet["Position"].text = `Position: ${mudApp.myAvatar.position.x}, ${mudApp.myAvatar.position.y}`;
+        pixiObjRet["Stamina"].text = `Stamina: ${mudApp.myAvatar.stamina}`;
+        pixiObjRet["Health"].text = `Health: ${mudApp.myAvatar.health}`;
+
+    };
+    playerSprite.on('onStatsChanged', onStatsChanged);
+
+
+    //document.addEventListener("statsChanged", onStatsChanged);
 }
 
 function mouseAction(app: PIXI.Application, playerSprite: PIXI.Sprite, mouseCoords: any, delta: number) {
