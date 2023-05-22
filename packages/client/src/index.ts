@@ -5,7 +5,11 @@ import initPixi from "./services/pixi";
 // Setup of the game withing the window
 class App {
   constructor() {
-    this.myAvatar = new Avatar({name: "myAvatar", charClass: "archer"}, {"strength": 20}, {x: 0, y: 0}, 100, 100, {intents: 0, actions: []});
+    //this.myAvatar = new Avatar({name: "myAvatar", charClass: "bandit"}, {"strength": 20}, {x: 0, y: 0}, 100, 100, {intents: 0, actions: []});
+  }
+
+  initAvatar(name: string, charClass: string) {
+    this.myAvatar = new Avatar({name: name, charClass: charClass}, {"strength": 20}, {x: 0, y: 0}, 100, 100, {intents: 0, actions: []});
   }
 
   async init() {

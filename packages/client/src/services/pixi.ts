@@ -5,6 +5,11 @@ import attributes from "contracts/src/models/Attributes.mjs";
 let app = null;
 
 const GLOBAL_VARS = {
+    scene: {
+        playerContainer: null,
+        player: null,
+    },
+
     // for styling the texts
     textStyle: {
         fontSize: "30px",
@@ -32,10 +37,12 @@ const ANIMATIONS = Object.freeze({
 
 // This is the game loop
 export default function initPixi(mudApp: any) { // the name of this function is misleading, it should be called startGame
-    console.log("myAvatar", mudApp.myAvatar);
+
     if(!mudApp) {
         alert("mudApp / avatar is null");
     }
+    mudApp.initAvatar("Horst Hrubesch", "bandit");
+    console.log("myAvatar", mudApp.myAvatar);
 
     const disableMouse = true; // disable mouse movement so that the game can be played with keyboard only
 
@@ -52,16 +59,17 @@ export default function initPixi(mudApp: any) { // the name of this function is 
         const mainContainer = new PIXI.Container();
         const hudContainer = new PIXI.Container();
         const playerContainer = new PIXI.Container();
+        GLOBAL_VARS.scene.playerContainer = playerContainer;
         playerContainer.interactive = true;
-
+        mainContainer.addChild(playerContainer);
         //const statsContainer = new PIXI.Container();
 
         const playerSprite = createPlayerAnimated(app, mudApp.myAvatar);
         playerContainer.addChild(playerSprite);
-        mainContainer.addChild(playerContainer);
+
 
         // createPlayerStats
-        const statsTable = createPlayerStats(hudContainer, playerSprite);
+        const statsTable = createPlayerStats(hudContainer);
 
 
         const hud = createPlayerHud(hudContainer);
@@ -217,7 +225,9 @@ function createPlayer(app: PIXI.Application) {
 function createPlayerAnimated(app: PIXI.Application, avatar) {
     console.log("createPlayerAnimated", avatar)
     //
-    const playerSprite = animatePlayer(null, avatar, ANIMATIONS.IDLE)
+    const playerSprite = animatePlayer(null, avatar, ANIMATIONS.IDLE);
+    //playerSprite.visible = false;
+    GLOBAL_VARS.scene.player = playerSprite;
 
     // Load the avatar image into a sprite
     //const playerSprite = PIXI.Sprite.from("assets/sprites/");
@@ -228,6 +238,7 @@ function createPlayerAnimated(app: PIXI.Application, avatar) {
 
     // Toggle the visibility of the table on click
     playerSprite.interactive = true;
+
     return playerSprite;
 }
 
@@ -279,9 +290,8 @@ function createPlayerHud(parentContainer: PIXI.Container) {
  *
  * @param playerSprite
  */
-function createPlayerStats(parentContainer: PIXI.Container, playerSprite: PIXI.Sprite) {
+function createPlayerStats(parentContainer: PIXI.Container) {
 
-    const avatarBounds = playerSprite.getBounds();
     // table to debug print the stats of an avatar
     const table = new PIXI.Container();
     //container.addChild(table);
@@ -337,9 +347,9 @@ function createPlayerStats(parentContainer: PIXI.Container, playerSprite: PIXI.S
     const tableHeight = 450;
     table.pivot.set(tableWidth / 2, tableHeight / 2); // set the pivot to the center of the table
     table.scale.set(0.5);
-    table.position.y = avatarBounds.height - 80;
-    table.position.x = avatarBounds.width;
 
+    table.position.x = app.screen.width - table.width-100;
+    table.position.y = app.screen.height;
     /*
     playerSprite.on("click", () => {
         console.log("table", table)
@@ -497,6 +507,17 @@ function addStatsChangeHandler(app: PIXI.Application, playerSprite: PIXI.Sprite,
 
     document.addEventListener("onStatsChanged", onStatsChanged);
 
+
+    document.addEventListener("onPlayerCreated", (event)=> {
+        alert("onPlayerCreated")
+    });
+
+    document.addEventListener("onPlayerSpawned", (event)=> {
+        //let playerSprite = createPlayerAnimated(app, mudApp.myAvatar);
+        GLOBAL_VARS.scene.player.visible = true;
+       // GLOBAL_VARS.scene.playerContainer.addChild(playerSprite)
+    });
+
     //document.addEventListener("statsChanged", onStatsChanged);
 }
 
@@ -578,13 +599,15 @@ function mouseAction(app: PIXI.Application, playerSprite: PIXI.Sprite, mouseCoor
  *
  * @param charClass
  */
-function generateAssetArray(charClass) {
+function generateAssetArray(charClass: string) {
     console.log("generateAssetArray", charClass)
     const assets = [
         "assets/background/background_01.png",
         "assets/background/background_02.png",
         "assets/background/background_03.png",
-        "assets/background/background_04.png",
+        "assets/background/background_04.png"
+    ];
+    if(charClass) {
         /*
                 this will be added automatically
                 "assets/sprites/archer/idle.json",
@@ -593,37 +616,38 @@ function generateAssetArray(charClass) {
                 "assets/sprites/archer/walk.json",
                 "assets/sprites/archer/attack_01.json",
         */
-    ];
 
-    const classesAll = [
-        "archer",
-        "bandit",
-        "death_knight",
-        "necromancer",
-        "warlock",
-        "warrior"
-    ];
+        const classesAll = [
+            "archer",
+            "bandit",
+            "death_knight",
+            "necromancer",
+            "warlock",
+            "warrior"
+        ];
 
-    if(!classesAll.includes(charClass)) {
-        console.error("charClass=" + charClass + " is not support atm.");
-        throw Error("charClass=" + charClass + " is not support atm.");
-    }
+        if(!classesAll.includes(charClass)) {
+            console.error("charClass=" + charClass + " is not support atm.");
+            throw Error("charClass=" + charClass + " is not support atm.");
+        }
 
-    const classes = [charClass];
-    //FIXME use anim enums
-    const animations = [
-        "attack_01",
-        "die",
-        "idle",
-        "rise",
-        "walk"
-    ];
+        const classes = [charClass];
+        //FIXME use anim enums
+        const animations = [
+            "attack_01",
+            "die",
+            "idle",
+            "rise",
+            "walk"
+        ];
 
-    for(let classEntry of classes) {
-        for(let animEntry of animations) {
-            assets.push("assets/sprites/" + classEntry + "/" + animEntry + ".json")
+        for(let classEntry of classes) {
+            for(let animEntry of animations) {
+                assets.push("assets/sprites/" + classEntry + "/" + animEntry + ".json")
+            }
         }
     }
+
     console.warn("generateAssets", assets)
     return assets;
 }
