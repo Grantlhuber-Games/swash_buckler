@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { Position, Stamina } from "../codegen/Tables.sol";
-//import { StaminaSystem } from "./StaminaSystem.sol";
+import { StaminaSystem } from "./StaminaSystem.sol";
 contract MovementSystem is System {
 
   function setPosition(int32 x, int32 y) public {
@@ -14,7 +14,8 @@ contract MovementSystem is System {
     address worldAddress = _world();
     IWorld world = IWorld(worldAddress);
 
-    world.exhaust(1);
+    uint32 staminaForMovement = 1;
+    world.exhaust(staminaForMovement);
 
     Position.set(x, y);
   }

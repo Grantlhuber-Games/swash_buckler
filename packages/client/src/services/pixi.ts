@@ -132,9 +132,6 @@ export default function initPixi(mudApp: any) { // the name of this function is 
 
 // FIXME if function has app param it does not work, because view is empty
 function toggleFullscreen() {
-
-
-
     if (document.fullscreenElement) {
         // Exit fullscreen
         if (document.exitFullscreen) {
@@ -365,7 +362,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
     const boxHeight = app.view.height / 100;
     let isAvatarFacingRight = true;
 
-    // delegates
+    // TODO add delegates
     function onKeyDown(key) {
         console.log("keydown", key);
         // W Key is 87
@@ -419,6 +416,10 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
             // If the D key or the Right arrow is pressed, move the player to the right.
             if (playerSprite.position.x != app.view.width - boxWidth) {
                 // Don't move to the right if the player is at the right side of the stage
+                /*
+                let newPositionX = playerSprite.position.x
+                newPositionX += boxWidth
+                */
                 playerSprite.position.x += boxWidth
                 if (!isAvatarFacingRight) {
                     playerSprite.scale.x *= -1; // Flip the avatar image horizontally
@@ -427,6 +428,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
                 playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.WALK);
                 window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
                 console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
+                //playerSprite.position.x = newPositionX;
             }
         }
 

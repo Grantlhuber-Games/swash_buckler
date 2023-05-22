@@ -9,8 +9,13 @@
     <script type="module" src="/src/index.ts"></script>
     <div>
       <div>
+        Avatar: <span id="avatar"></span>
+        <button onclick="window.createPlayer('Horst Rubesch der zweite', 'warlock')">createPlayer</button>
+        <button onclick="window.spawnPlayer(0,10)">spawnPlayer</button>
+        <br>
+      <div>
         Char: <span id="character"></span>
-        <button onclick="window.createPlayer('Horst Rubesch')">createPlayer</button><br>
+
         Attributes: <span id="attributes"></span><br>
         Position: <span id="position"></span><br>
         Intent: <span id="intent"></span>

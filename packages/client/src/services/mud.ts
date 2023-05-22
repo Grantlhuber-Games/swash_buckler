@@ -117,6 +117,13 @@ function subscribeToComponents(mudApp, components: any) {
     });
 
     // Components expose a stream that triggers when the component is updated.
+    components.Avatar.update$.subscribe((update: any) => {
+        const [nextValue, prevValue] = update.value;
+        let actions = JSON.stringify(nextValue);
+        document.getElementById("avatar")!.innerHTML = actions;
+    });
+
+    // Components expose a stream that triggers when the component is updated.
     components.Counter.update$.subscribe((update: any) => {
         const [nextValue, prevValue] = update.value;
         console.log("Counter updated", update, { nextValue, prevValue });
@@ -160,7 +167,8 @@ function registerWindowFunctions(mudApp, mudObj: any) {
             getActionById,
 
             //player system
-            createPlayer
+            createPlayer,
+            spawnPlayer
         },
     } = mudObj;
 
@@ -176,9 +184,14 @@ function registerWindowFunctions(mudApp, mudObj: any) {
         console.log("getActionById:", await getActionById(actionId));
     };
 
-    (window as any).createPlayer = async (name: string) => {
-        console.log("new player:", await createPlayer(name));
+    (window as any).createPlayer = async (name: string, charType: string) => {
+        console.log("new player:", await createPlayer(name, charType));
     };
+
+    (window as any).spawnPlayer = async (x: number, y: number) => {
+        console.log("spawnPlayer:", await spawnPlayer(x, y));
+    };
+
 
     (window as any).setPosition = async (x: number, y: number) => {
         mudApp.myAvatar.position = { x, y };
