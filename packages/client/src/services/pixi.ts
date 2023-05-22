@@ -307,13 +307,21 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
 
         // Y Key is 89
         if (key.keyCode === 89) {
-            alert("soft Fight call hurt 20");
+            alert("soft Fight call hurt 20 (addintent + wait 5 sec + removeintent)");
+            window.addIntent(1);
             window.hurt(20);
+            setTimeout(() => {
+                window.removeIntent(true);
+                 }, 5000);
         }
         // X key is 88
         if (key.keyCode === 88) {
-            alert("hard Fight call hurt 50");
+            alert("hard Fight call hurt 50 (addintent + wait 5 sec + removeintent)");
+            window.addIntent(2)
             window.hurt(50);
+            setTimeout(() => {
+                window.removeIntent(true);
+            }, 5000);
         }
         // C key is 67
         if (key.keyCode === 67) {

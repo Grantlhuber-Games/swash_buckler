@@ -9,10 +9,16 @@
     <script type="module" src="/src/index.ts"></script>
     <div>
       <div>
-        Char: <span id="character"></span><button onclick="window.createPlayer('Horst Rubesch')">createPlayer</button><br>
+        Char: <span id="character"></span>
+        <button onclick="window.createPlayer('Horst Rubesch')">createPlayer</button><br>
         Attributes: <span id="attributes"></span><br>
         Position: <span id="position"></span><br>
         Intent: <span id="intent"></span>
+        <button onclick="window.addIntent(1)">addIntent 1</button>
+        <button onclick="window.removeIntent(false)">removeIntent false</button>
+        <button onclick="window.removeIntent(true)">addIntent true</button>
+
+        <br>
       </div>
 
       <div>

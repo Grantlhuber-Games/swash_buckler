@@ -27,11 +27,14 @@ export function createSystemCalls(
   const healthSystemCalls = createCallsForHealthSystem({ worldSend, txReduced$, singletonEntity }, Health);
   console.log("healthSystemCalls", healthSystemCalls)
 
-  const staminaSystemCalls = createCallsForStaminaSystem({ worldSend, txReduced$, singletonEntity }, Health);
+  const staminaSystemCalls = createCallsForStaminaSystem({ worldSend, txReduced$, singletonEntity }, Stamina);
   console.log("staminaSystemCalls", staminaSystemCalls)
 
   const playerSystemCalls = createCallsForPlayerSystem({ worldSend, txReduced$, singletonEntity }, Character);
   console.log("playerSystemCalls", playerSystemCalls)
+
+  const intentSystemCalls = createCallsForIntentSystem({ worldSend, txReduced$, singletonEntity }, Intent);
+  console.log("intentSystemCalls", intentSystemCalls)
 
 
   const increment = async () => {
@@ -46,6 +49,7 @@ export function createSystemCalls(
     ...healthSystemCalls,
     ...staminaSystemCalls,
     ...playerSystemCalls,
+    ...intentSystemCalls,
     getActionById
   };
 }
@@ -163,6 +167,27 @@ function createCallsForPlayerSystem(
 
   return {
     createPlayer
+  }
+}
+
+function createCallsForIntentSystem(
+    { worldSend, txReduced$, singletonEntity }: SetupNetworkResult,
+    Intent: ClientComponents
+) {
+  const addIntent = async (actionId: number) => {
+    const tx = await worldSend("addIntent", [actionId]);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+    return getComponentValue(Intent, singletonEntity);
+  };
+  const removeIntent = async (used: boolean) => {
+    const tx = await worldSend("removeIntent", [used]);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+    return getComponentValue(Intent, singletonEntity);
+  };
+
+  return {
+    addIntent,
+    removeIntent
   }
 }
 

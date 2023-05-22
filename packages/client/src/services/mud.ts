@@ -111,7 +111,9 @@ function subscribeToComponents(mudApp, components: any) {
     // Components expose a stream that triggers when the component is updated.
     components.Action.update$.subscribe((update: any) => {
         const [nextValue, prevValue] = update.value;
-        console.log("Action updated", update, { nextValue, prevValue });
+        let actions = JSON.stringify(nextValue);
+        document.getElementById("actions")!.innerHTML = actions;
+         console.log("Action updated", actions);
     });
 
     // Components expose a stream that triggers when the component is updated.
@@ -149,6 +151,10 @@ function registerWindowFunctions(mudApp, mudObj: any) {
             hasSufficientStamina,
             isExhausted,
             isFresh,
+
+            //intent system
+            addIntent,
+            removeIntent,
 
             //action system
             getActionById,
@@ -240,5 +246,12 @@ function registerWindowFunctions(mudApp, mudObj: any) {
         console.log("drain:", await isFresh());
     };
 
+    //intent system
+    (window as any).addIntent = async (actionId: number) => {
+        console.log("drain:", await addIntent(actionId));
+    };
+    (window as any).removeIntent = async (used: boolean) => {
+        console.log("drain:", await removeIntent(used));
+    };
 
 }
