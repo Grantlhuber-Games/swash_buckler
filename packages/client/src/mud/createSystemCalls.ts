@@ -159,14 +159,21 @@ function createCallsForPlayerSystem(
     { worldSend, txReduced$, singletonEntity }: SetupNetworkResult,
     Character: ClientComponents
 ) {
-  const createPlayer = async (name: string) => {
-    const tx = await worldSend("createPlayer", [name]);
+  const createPlayer = async (name: string, charType: string) => {
+    const tx = await worldSend("createPlayer", [name, charType]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
     return getComponentValue(Character, singletonEntity);
   };
 
+  const spawnPlayer = async (x: number, y: number) => {
+    const tx = await worldSend("spawnPlayer", [x, y]);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+    //return getComponentValue(Avatar, singletonEntity);
+  };
+
   return {
-    createPlayer
+    createPlayer,
+    spawnPlayer
   }
 }
 

@@ -47,7 +47,7 @@ contract StaminaSystem is System {
     * @param redVal amount to decrement
     * @return new stamina value
     */
-  function exhaust(uint32 redVal) public requireIsNotExhausted returns (uint32) {
+  function exhaust(uint32 redVal) public requireIsAbleToExecuteIntent(redVal) returns (uint32) {
 
     uint32 stamina = Stamina.get();
     uint32 newValue = 0;

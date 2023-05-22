@@ -1,6 +1,6 @@
+// TODO add enums for charType
 export default class Avatar {
     constructor(_characterObj, _attributesObj, _position, _health, _stamina, _intentObj) {
-        this.action = "Idle";
         this.character = {
             name: _characterObj.name,
             human: _characterObj.human,
@@ -22,6 +22,11 @@ export default class Avatar {
             intents: _intentObj.intents,
             actions: _intentObj.actions,
         }
+        this.spawned = false;
+
+        // js only
+        this.action = "Idle";
+
     }
 
     private setCharacterByField(_name, _human, _description, _charClass) {

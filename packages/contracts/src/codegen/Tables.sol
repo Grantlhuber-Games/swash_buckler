@@ -9,5 +9,6 @@ import { Position, PositionData, PositionTableId } from "./tables/Position.sol";
 import { Health, HealthTableId } from "./tables/Health.sol";
 import { Stamina, StaminaTableId } from "./tables/Stamina.sol";
 import { Intent, IntentData, IntentTableId } from "./tables/Intent.sol";
+import { Avatar, AvatarTableId } from "./tables/Avatar.sol";
 import { Action, ActionData, ActionTableId } from "./tables/Action.sol";
 import { Counter, CounterTableId } from "./tables/Counter.sol";

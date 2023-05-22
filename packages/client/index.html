@@ -8,8 +8,20 @@
   <body>
     <script type="module" src="/src/index.ts"></script>
     <div>
-      <div>Counter: <span id="counter">0</span></div>
-      <button onclick="window.increment()">Increment</button>
+      <div>
+        Avatar: <span id="avatar"></span>
+        <button onclick="window.createPlayer('Horst Rubesch der zweite', 'warlock')">createPlayer</button>
+        <button onclick="window.spawnPlayer(0,10)">spawnPlayer</button>
+        <br>
+      <div>
+        Char: <span id="character"></span>
+
+        Attributes: <span id="attributes"></span><br>
+        Position: <span id="position"></span><br>
+        Intent: <span id="intent"></span>
+        <button onclick="window.addIntent(1)">addIntent 1</button>
+        <button onclick="window.removeIntent(false)">removeIntent used=false</button>
+        <button onclick="window.removeIntent(true)">removeIntent used=true</button>
 
       <div>Position: <span id="position"></span></div>
       <div>Health: <span id="health"> </span> / 100</div>

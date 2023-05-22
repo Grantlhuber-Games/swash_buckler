@@ -9,7 +9,7 @@ const
             human: "bool",
             name: "string",
             description: "string",
-            charClass: "string"
+            charClass: "string" // should be enum CharType
         }
     }
 }
