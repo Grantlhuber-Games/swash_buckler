@@ -21,11 +21,11 @@ const GLOBAL_VARS = {
  * @enum {{name: string, hex: string}}
  */
 const ANIMATIONS = Object.freeze({
-    ATTACK_01:   { name: "Attack01", file: "attack_01" },
-    DIE:   { name: "Die" },
-    IDLE:   { name: "Idle" },
-    RISE:   { name: "Rise" },
-    WALK:   { name: "Walk" },
+    ATTACK_01:   { name: "Attack01", file: "attack_01", loop: false },
+    DIE:   { name: "Die", loop: false },
+    IDLE:   { name: "Idle", loop: true },
+    RISE:   { name: "Rise", loop: false },
+    WALK:   { name: "Walk", loop: true },
     //RESURRECT:   { name: "Resurrect" },
 });
 
@@ -190,7 +190,7 @@ function createPlayer(app: PIXI.Application) {
 function createPlayerAnimated(app: PIXI.Application, avatar) {
     console.log("createPlayerAnimated", avatar)
     //
-    const playerSprite = animatePlayer(null, avatar, ANIMATIONS.WALK)
+    const playerSprite = animatePlayer(null, avatar, ANIMATIONS.IDLE)
 
     // Load the avatar image into a sprite
     //const playerSprite = PIXI.Sprite.from("assets/sprites/");
@@ -208,7 +208,7 @@ function animatePlayer(playerSprite: PIXI.AnimatedSprite, avatar, animationType)
     console.log("animatePlayer", playerSprite, animationType);
     const currentAction = avatar.getAction();
 
-    if( currentAction === animationType.name) {
+    if( currentAction === animationType.name && playerSprite) {
         return playerSprite;
     }
     avatar.setAction(animationType.name);
@@ -225,6 +225,9 @@ function animatePlayer(playerSprite: PIXI.AnimatedSprite, avatar, animationType)
         playerSprite = playerSpriteNew;
     }
     playerSprite.animationSpeed = 1 / 4                      // 6 fps
+    console.log("playerSprite.loop", animationType.loop)
+    //playerSprite.stop();
+    playerSprite.loop = animationType.loop;
     playerSprite.play();
     //playerSprite.play();
     return playerSprite;
@@ -232,8 +235,12 @@ function animatePlayer(playerSprite: PIXI.AnimatedSprite, avatar, animationType)
 
 
 function createPlayerHud(parentContainer: PIXI.Container) {
-    // TODO martin
+
     const hud = new PIXI.Container();
+
+    // TODO martin
+
+
 
     if(parentContainer) {
         parentContainer.addChild(hud)
@@ -429,8 +436,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
 
         // move to gameloop
 
-
-        playerSprite.emit('onStatsChanged');
+        document.dispatchEvent(new Event("onStatsChanged"));
 
     }
     // Add the 'keydown' event listener to our document
@@ -439,8 +445,6 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
 }
 
 function addStatsChangeHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mudApp, pixiObjRet) {
-
-
 
     const onStatsChanged = (event) => {
         console.log("onStatsChanged", event);
@@ -452,9 +456,14 @@ function addStatsChangeHandler(app: PIXI.Application, playerSprite: PIXI.Sprite,
         pixiObjRet["Stamina"].text = `Stamina: ${mudApp.myAvatar.stamina}`;
         pixiObjRet["Health"].text = `Health: ${mudApp.myAvatar.health}`;
 
-    };
-    playerSprite.on('onStatsChanged', onStatsChanged);
+        if(mudApp.myAvatar.health <= 0) {
+            playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.DIE);
+        }
 
+    };
+    //playerSprite.on('onStatsChanged', onStatsChanged);
+
+    document.addEventListener("onStatsChanged", onStatsChanged);
 
     //document.addEventListener("statsChanged", onStatsChanged);
 }
