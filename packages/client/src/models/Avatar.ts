@@ -1,6 +1,6 @@
 export default class Avatar {
     constructor(_characterObj, _attributesObj, _position, _health, _stamina, _intentObj) {
-
+        this.action = "Idle";
         this.character = {
             name: _characterObj.name,
             human: _characterObj.human,
@@ -34,6 +34,12 @@ export default class Avatar {
         }
     }
 
+    public setAction(newAction: string) {
+        this.action = newAction;
+    }
+    public getAction() {
+        return this.action;
+    }
     public setCharacter(obj: any) {
         console.log("avatar: setCharacterByObject", obj)
        this.character = JSON.parse(JSON.stringify(obj));
