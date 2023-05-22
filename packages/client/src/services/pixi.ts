@@ -86,13 +86,43 @@ export default function initPixi(mudApp: any) { // the name of this function is 
         });
         // mouse events end
 
+        const blurFilter1 = new PIXI.BlurFilter();
+        const colorMatrix = new PIXI.ColorMatrixFilter();
+        playerSprite.filters= [blurFilter1, colorMatrix];
 
         // Listen for animate update
         app.ticker.add((delta) => {
             if (!disableMouse) {
                 mouseAction(app, playerSprite, mouseCoords, delta);
             }
+            adjustBlurToStamina(mudApp.myAvatar.stamina);
+            adjustBrightnessToHealth(mudApp.myAvatar.health);
         });
+
+        function adjustBlurToStamina(stamina) {
+            if(stamina < 25) {
+                blurFilter1.blur = 3;
+            } else if(stamina < 50) {
+                blurFilter1.blur = 2;
+            } else if(stamina < 75) {
+                blurFilter1.blur = 1;
+            } else {
+                blurFilter1.blur = 0;
+            }
+        }
+        function adjustBrightnessToHealth(health) {
+              //  .blackAndWhite (true);
+            if(health < 25) {
+                //colorMatrix.blackAndWhite (true);
+                colorMatrix.brightness(0.3, false)
+            } else if(health < 50) {
+                colorMatrix.brightness(0.6, false)
+            } else if(health < 75) {
+                colorMatrix.brightness(0.7, false)
+            } else {
+                colorMatrix.brightness(1, false)
+            }
+        }
 
         // Function to toggle fullscreen mode
         app.stage.addChild(mainContainer);
