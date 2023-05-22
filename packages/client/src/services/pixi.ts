@@ -4,7 +4,7 @@ import attributes from "contracts/src/models/Attributes.mjs";
 // PIXI_APP
 let app = null;
 
-const globalVars = {
+const GLOBAL_VARS = {
     // for styling the texts
     textStyle: {
         fontSize: "30px",
@@ -26,7 +26,7 @@ const ANIMATIONS = Object.freeze({
     IDLE:   { name: "Idle" },
     RISE:   { name: "Rise" },
     WALK:   { name: "Walk" },
-
+    //RESURRECT:   { name: "Resurrect" },
 });
 
 
@@ -62,10 +62,10 @@ export default function initPixi(mudApp: any) { // the name of this function is 
 
         // createPlayerStats
         const statsTable = createPlayerStats(hudContainer, playerSprite);
-        hudContainer.addChild(statsTable);
 
-        const hud = createPlayerHud();
-        hudContainer.addChild(hud);
+
+        const hud = createPlayerHud(hudContainer);
+
 
         app.stage.addChild(hudContainer);
         //mainContainer.addChild(statsTable);
@@ -75,8 +75,8 @@ export default function initPixi(mudApp: any) { // the name of this function is 
         app.stage.hitArea = app.screen;
 
 
-        addKeyboardHandler(app, playerSprite, mudApp, globalVars.pixiStats);
-        addStatsChangeHandler(app, playerSprite, mudApp, globalVars.pixiStats);
+        addKeyboardHandler(app, playerSprite, mudApp, GLOBAL_VARS.pixiStats);
+        addStatsChangeHandler(app, playerSprite, mudApp, GLOBAL_VARS.pixiStats);
 
         // mouse events
         const mouseCoords = { x: 0, y: 0 };
@@ -98,58 +98,6 @@ export default function initPixi(mudApp: any) { // the name of this function is 
         app.stage.addChild(mainContainer);
     });
 }
-
-function generateAssetArray(charClass) {
-    console.log("generateAssetArray", charClass)
-    const assets = [
-        "assets/background/background_01.png",
-        "assets/background/background_02.png",
-        "assets/background/background_03.png",
-        "assets/background/background_04.png",
-/*
-        "assets/sprites/archer/idle.json",
-        "assets/sprites/archer/die.json",
-        "assets/sprites/archer/rise.json",
-        "assets/sprites/archer/walk.json",
-        "assets/sprites/archer/attack_01.json",
-
-
-        "assets/sprites/bandit/idle.json",
-        "assets/sprites/bandit/die.json",
-        "assets/sprites/bandit/rise.json",
-        "assets/sprites/bandit/walk.json",
-        "assets/sprites/bandit/attack_01.json"
-*/
-    ];
-
-    const classesAll = [
-        "archer",
-        "bandit",
-        "death_knight",
-        "necromancer",
-        "warlock",
-        "warrior"
-    ];
-
-    const classes = [charClass];
-    //FIXME use anim enums
-    const animations = [
-        "attack_01",
-        "die",
-        "idle",
-        "rise",
-        "walk"
-    ];
-
-    for(let classEntry of classes) {
-        for(let animEntry of animations) {
-            assets.push("assets/sprites/" + classEntry + "/" + animEntry + ".json")
-        }
-    }
-    console.warn("generateAssets", assets)
-    return assets;
-}
-
 
 
 // FIXME if function has app param it does not work, because view is empty
@@ -200,7 +148,7 @@ function createLevel(app: PIXI.Application) {
 function createHUD(app: PIXI.Application) {
     // Create a text element for the title
     let text = new PIXI.Text(
-        "Swash Buckler", globalVars.textStyle
+        "Swash Buckler", GLOBAL_VARS.textStyle
     );
     app.stage.addChild(text); // adding to app.stage makes it appear on the screen
 
@@ -241,20 +189,8 @@ function createPlayer(app: PIXI.Application) {
 
 function createPlayerAnimated(app: PIXI.Application, avatar) {
     console.log("createPlayerAnimated", avatar)
-
-    //TODO call animate here
-
-    const CHAR_CLASS = avatar.character.charClass || "archer";
-
-    const animations = PIXI.Assets.cache.get('assets/sprites/' + CHAR_CLASS + '/idle.json').data.animations;
-    console.log("createPlayerAnimated", animations);
-
-    const playerSprite = PIXI.AnimatedSprite.fromFrames(animations["Idle"]);
-    console.log(playerSprite);
-    // configure + start animation:
-    playerSprite.animationSpeed = 1 / 5                      // 6 fps
-    //playerSprite.position.set(1500, background.height - 780); // almost bottom-left corner of the canvas
-    playerSprite.play();
+    //
+    const playerSprite = animatePlayer(null, avatar, ANIMATIONS.WALK)
 
     // Load the avatar image into a sprite
     //const playerSprite = PIXI.Sprite.from("assets/sprites/");
@@ -279,26 +215,29 @@ function animatePlayer(playerSprite: PIXI.AnimatedSprite, avatar, animationType)
     const CHAR_CLASS = avatar.character.charClass || "archer";
     const animFile = animationType.file?animationType.file:animationType.name.toLowerCase();
     const animations = PIXI.Assets.cache.get('assets/sprites/'  + CHAR_CLASS + "/" + animFile + '.json').data.animations;
-console.log("playerSprite", playerSprite)
-    //console.log("animatePlayer", animations);
-    //playerSprite.stop();
-    //let frameName = animationType.name;
+    console.log("playerSprite", playerSprite)
+
     let playerSpriteNew = PIXI.AnimatedSprite.fromFrames(animations[animationType.name]);
-    //playerSprite = playerSpriteNew;
-
-    playerSprite.textures = playerSpriteNew.textures;
-
+    // if playerSprit is set - change textures
+    if(playerSprite) {
+        playerSprite.textures = playerSpriteNew.textures;
+    } else { // if it is not set instantiate it
+        playerSprite = playerSpriteNew;
+    }
+    playerSprite.animationSpeed = 1 / 4                      // 6 fps
     playerSprite.play();
     //playerSprite.play();
     return playerSprite;
 }
 
 
-function createPlayerHud() {
+function createPlayerHud(parentContainer: PIXI.Container) {
     // TODO martin
     const hud = new PIXI.Container();
 
-
+    if(parentContainer) {
+        parentContainer.addChild(hud)
+    }
     return hud;
 }
 
@@ -306,7 +245,7 @@ function createPlayerHud() {
  *
  * @param playerSprite
  */
-function createPlayerStats(container: PIXI.Container, playerSprite: PIXI.Sprite) {
+function createPlayerStats(parentContainer: PIXI.Container, playerSprite: PIXI.Sprite) {
 
     const avatarBounds = playerSprite.getBounds();
     // table to debug print the stats of an avatar
@@ -350,32 +289,17 @@ function createPlayerStats(container: PIXI.Container, playerSprite: PIXI.Sprite)
         counterYDist = 0;
 
     for (let stat of statsValues) {
-        let statText = new PIXI.Text(`${stat.name}: ${stat.value}`, globalVars.textStyle);
+        let statText = new PIXI.Text(`${stat.name}: ${stat.value}`, GLOBAL_VARS.textStyle);
         statText.position.y = statText.position.y + counterYDist * DISTANCE_BETWEEN_Y;
         table.addChild(statText);
-        globalVars.pixiStats[stat.name] = statText;
+        GLOBAL_VARS.pixiStats[stat.name] = statText;
         pixiRetElement.push(statText);
         counterYDist++;
     }
    let widthElements = pixiRetElement.map((x) => x.width)
 
     const tableWidth = Math.max(...widthElements);
-    console.log("tableWidth", tableWidth)
 
-
-
-    /*
-    const bg = new PIXI.Sprite(PIXI.Texture.WHITE);
-    bg.width = tableWidth;
-    bg.pivot.set(tableWidth / 2, tableHeight / 2)
-    bg.height = table.height;
-    bg.position.x = table.position.x;// = table.position.x;
-    bg.position.y = table.position.y;// = table.position.x;
-    bg.tint = 0x000000;
-    bg.height = 450;
-    bg.height = table.height * 2;
-    table.addChild(bg)
-     */
     const tableHeight = 450;
     table.pivot.set(tableWidth / 2, tableHeight / 2); // set the pivot to the center of the table
     table.scale.set(0.5);
@@ -389,8 +313,9 @@ function createPlayerStats(container: PIXI.Container, playerSprite: PIXI.Sprite)
     });
     */
 
-    // FIXME this is responsible for the table not being visible
-    //playerSprite.addChild(table); // adding to app.stage makes it appear on the screen
+    if(parentContainer) {
+        parentContainer.addChild(table)
+    }
 
     // return mapping easy key value access to update
     return table;
@@ -606,3 +531,59 @@ function mouseAction(app: PIXI.Application, playerSprite: PIXI.Sprite, mouseCoor
         window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
     }
 }
+
+
+/**
+ *
+ * @param charClass
+ */
+function generateAssetArray(charClass) {
+    console.log("generateAssetArray", charClass)
+    const assets = [
+        "assets/background/background_01.png",
+        "assets/background/background_02.png",
+        "assets/background/background_03.png",
+        "assets/background/background_04.png",
+        /*
+                this will be added automatically
+                "assets/sprites/archer/idle.json",
+                "assets/sprites/archer/die.json",
+                "assets/sprites/archer/rise.json",
+                "assets/sprites/archer/walk.json",
+                "assets/sprites/archer/attack_01.json",
+        */
+    ];
+
+    const classesAll = [
+        "archer",
+        "bandit",
+        "death_knight",
+        "necromancer",
+        "warlock",
+        "warrior"
+    ];
+
+    if(!classesAll.includes(charClass)) {
+        console.error("charClass=" + charClass + " is not support atm.");
+        throw Error("charClass=" + charClass + " is not support atm.");
+    }
+
+    const classes = [charClass];
+    //FIXME use anim enums
+    const animations = [
+        "attack_01",
+        "die",
+        "idle",
+        "rise",
+        "walk"
+    ];
+
+    for(let classEntry of classes) {
+        for(let animEntry of animations) {
+            assets.push("assets/sprites/" + classEntry + "/" + animEntry + ".json")
+        }
+    }
+    console.warn("generateAssets", assets)
+    return assets;
+}
+

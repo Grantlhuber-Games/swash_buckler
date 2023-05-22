@@ -34,6 +34,10 @@ export default class Avatar {
         }
     }
 
+    /**
+     * Contains the current animation.name
+     * @param newAction
+     */
     public setAction(newAction: string) {
         this.action = newAction;
     }
