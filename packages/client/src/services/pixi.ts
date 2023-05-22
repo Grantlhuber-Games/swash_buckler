@@ -204,7 +204,8 @@ function animatePlayer(playerSprite: PIXI.Sprite) {
     const animations = PIXI.Assets.cache.get('assets/sprites/archer/die.json').data.animations;
     console.log("animatePlayer", animations);
     playerSprite = PIXI.AnimatedSprite.fromFrames(animations["Die"]);
-    playerSprite.play();
+    //playerSprite.play();
+    return playerSprite;
 }
 
 
@@ -318,7 +319,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
             if (playerSprite.position.y != 0) {
                 // Don't move up if the player is at the top of the stage
                 playerSprite.position.y -= boxHeight;
-                animatePlayer(playerSprite);
+                playerSprite = animatePlayer(playerSprite);
                 window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
                 console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
 

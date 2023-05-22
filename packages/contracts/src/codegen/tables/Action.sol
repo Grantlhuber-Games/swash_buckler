@@ -22,7 +22,7 @@ bytes32 constant ActionTableId = _tableId;
 
 struct ActionData {
   uint32 minLvl;
-  uint32 baseDamage;
+  int32 baseDamage;
   uint32 costsStaminaUsed;
   uint32 costsStaminaExpired;
   int8 usages;
@@ -35,7 +35,7 @@ library Action {
   function getSchema() internal pure returns (Schema) {
     SchemaType[] memory _schema = new SchemaType[](7);
     _schema[0] = SchemaType.UINT32;
-    _schema[1] = SchemaType.UINT32;
+    _schema[1] = SchemaType.INT32;
     _schema[2] = SchemaType.UINT32;
     _schema[3] = SchemaType.UINT32;
     _schema[4] = SchemaType.INT8;
@@ -122,25 +122,25 @@ library Action {
   }
 
   /** Get baseDamage */
-  function getBaseDamage(uint8 id) internal view returns (uint32 baseDamage) {
+  function getBaseDamage(uint8 id) internal view returns (int32 baseDamage) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1);
-    return (uint32(Bytes.slice4(_blob, 0)));
+    return (int32(uint32(Bytes.slice4(_blob, 0))));
   }
 
   /** Get baseDamage (using the specified store) */
-  function getBaseDamage(IStore _store, uint8 id) internal view returns (uint32 baseDamage) {
+  function getBaseDamage(IStore _store, uint8 id) internal view returns (int32 baseDamage) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 1);
-    return (uint32(Bytes.slice4(_blob, 0)));
+    return (int32(uint32(Bytes.slice4(_blob, 0))));
   }
 
   /** Set baseDamage */
-  function setBaseDamage(uint8 id, uint32 baseDamage) internal {
+  function setBaseDamage(uint8 id, int32 baseDamage) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
@@ -148,7 +148,7 @@ library Action {
   }
 
   /** Set baseDamage (using the specified store) */
-  function setBaseDamage(IStore _store, uint8 id, uint32 baseDamage) internal {
+  function setBaseDamage(IStore _store, uint8 id, int32 baseDamage) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = bytes32(uint256((id)));
 
@@ -431,7 +431,7 @@ library Action {
   function set(
     uint8 id,
     uint32 minLvl,
-    uint32 baseDamage,
+    int32 baseDamage,
     uint32 costsStaminaUsed,
     uint32 costsStaminaExpired,
     int8 usages,
@@ -459,7 +459,7 @@ library Action {
     IStore _store,
     uint8 id,
     uint32 minLvl,
-    uint32 baseDamage,
+    int32 baseDamage,
     uint32 costsStaminaUsed,
     uint32 costsStaminaExpired,
     int8 usages,
@@ -518,7 +518,7 @@ library Action {
 
     _table.minLvl = (uint32(Bytes.slice4(_blob, 0)));
 
-    _table.baseDamage = (uint32(Bytes.slice4(_blob, 4)));
+    _table.baseDamage = (int32(uint32(Bytes.slice4(_blob, 4))));
 
     _table.costsStaminaUsed = (uint32(Bytes.slice4(_blob, 8)));
 
@@ -543,7 +543,7 @@ library Action {
   /** Tightly pack full data using this table's schema */
   function encode(
     uint32 minLvl,
-    uint32 baseDamage,
+    int32 baseDamage,
     uint32 costsStaminaUsed,
     uint32 costsStaminaExpired,
     int8 usages,

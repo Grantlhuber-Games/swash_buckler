@@ -49,7 +49,8 @@ contract IntentSystem is System {
   // TODO add entity id bytes32 playerKey
   function hasAction(uint8 actionId) public view returns (bool) {
     bool doesListContainElement = false;
-    uint8[2] memory actionList = Intent.getActions();
+    // FIXME one need to know how much action are available - use a dynamic array
+    uint8[4] memory actionList = Intent.getActions();
     for (uint i=0; i < actionList.length; i++) {
       if (actionId == actionList[i]) {
         return true;

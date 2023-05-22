@@ -22,7 +22,7 @@ bytes32 constant IntentTableId = _tableId;
 
 struct IntentData {
   uint8 intents;
-  uint8[2] actions;
+  uint8[4] actions;
 }
 
 library Intent {
@@ -102,33 +102,33 @@ library Intent {
   }
 
   /** Get actions */
-  function getActions() internal view returns (uint8[2] memory actions) {
+  function getActions() internal view returns (uint8[4] memory actions) {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1);
-    return toStaticArray_uint8_2(SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint8());
+    return toStaticArray_uint8_4(SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint8());
   }
 
   /** Get actions (using the specified store) */
-  function getActions(IStore _store) internal view returns (uint8[2] memory actions) {
+  function getActions(IStore _store) internal view returns (uint8[4] memory actions) {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 1);
-    return toStaticArray_uint8_2(SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint8());
+    return toStaticArray_uint8_4(SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint8());
   }
 
   /** Set actions */
-  function setActions(uint8[2] memory actions) internal {
+  function setActions(uint8[4] memory actions) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    StoreSwitch.setField(_tableId, _keyTuple, 1, EncodeArray.encode(fromStaticArray_uint8_2(actions)));
+    StoreSwitch.setField(_tableId, _keyTuple, 1, EncodeArray.encode(fromStaticArray_uint8_4(actions)));
   }
 
   /** Set actions (using the specified store) */
-  function setActions(IStore _store, uint8[2] memory actions) internal {
+  function setActions(IStore _store, uint8[4] memory actions) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    _store.setField(_tableId, _keyTuple, 1, EncodeArray.encode(fromStaticArray_uint8_2(actions)));
+    _store.setField(_tableId, _keyTuple, 1, EncodeArray.encode(fromStaticArray_uint8_4(actions)));
   }
 
   /** Get the length of actions */
@@ -222,7 +222,7 @@ library Intent {
   }
 
   /** Set the full data using individual values */
-  function set(uint8 intents, uint8[2] memory actions) internal {
+  function set(uint8 intents, uint8[4] memory actions) internal {
     bytes memory _data = encode(intents, actions);
 
     bytes32[] memory _keyTuple = new bytes32[](0);
@@ -231,7 +231,7 @@ library Intent {
   }
 
   /** Set the full data using individual values (using the specified store) */
-  function set(IStore _store, uint8 intents, uint8[2] memory actions) internal {
+  function set(IStore _store, uint8 intents, uint8[4] memory actions) internal {
     bytes memory _data = encode(intents, actions);
 
     bytes32[] memory _keyTuple = new bytes32[](0);
@@ -264,17 +264,17 @@ library Intent {
 
       _start = _end;
       _end += _encodedLengths.atIndex(0);
-      _table.actions = toStaticArray_uint8_2(SliceLib.getSubslice(_blob, _start, _end).decodeArray_uint8());
+      _table.actions = toStaticArray_uint8_4(SliceLib.getSubslice(_blob, _start, _end).decodeArray_uint8());
     }
   }
 
   /** Tightly pack full data using this table's schema */
-  function encode(uint8 intents, uint8[2] memory actions) internal view returns (bytes memory) {
+  function encode(uint8 intents, uint8[4] memory actions) internal view returns (bytes memory) {
     uint40[] memory _counters = new uint40[](1);
     _counters[0] = uint40(actions.length * 1);
     PackedCounter _encodedLengths = PackedCounterLib.pack(_counters);
 
-    return abi.encodePacked(intents, _encodedLengths.unwrap(), EncodeArray.encode(fromStaticArray_uint8_2(actions)));
+    return abi.encodePacked(intents, _encodedLengths.unwrap(), EncodeArray.encode(fromStaticArray_uint8_4(actions)));
   }
 
   /** Encode keys as a bytes32 array using this table's schema */
@@ -297,20 +297,20 @@ library Intent {
   }
 }
 
-function toStaticArray_uint8_2(uint8[] memory _value) pure returns (uint8[2] memory _result) {
+function toStaticArray_uint8_4(uint8[] memory _value) pure returns (uint8[4] memory _result) {
   // in memory static arrays are just dynamic arrays without the length byte
   assembly {
     _result := add(_value, 0x20)
   }
 }
 
-function fromStaticArray_uint8_2(uint8[2] memory _value) view returns (uint8[] memory _result) {
-  _result = new uint8[](2);
+function fromStaticArray_uint8_4(uint8[4] memory _value) view returns (uint8[] memory _result) {
+  _result = new uint8[](4);
   uint256 fromPointer;
   uint256 toPointer;
   assembly {
     fromPointer := _value
     toPointer := add(_result, 0x20)
   }
-  Memory.copy(fromPointer, toPointer, 64);
+  Memory.copy(fromPointer, toPointer, 128);
 }

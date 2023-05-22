@@ -26,7 +26,7 @@ contract PostDeploy is Script {
 
     //Static fields must come before dynamic fields in the schema
     Action.set(world, 1, ActionData({
-      minLvl: 2,
+      minLvl: 0,
       baseDamage: 3,
       costsStaminaUsed: 10,
       costsStaminaExpired: 2,
@@ -35,13 +35,31 @@ contract PostDeploy is Script {
       name: "attack (soft)"
     }));
     Action.set(world, 2, ActionData({
-      minLvl: 2,
+      minLvl: 0,
       baseDamage: 6,
-      costsStaminaUsed: 30,
-      costsStaminaExpired: 10,
+      costsStaminaUsed: 20,
+      costsStaminaExpired: 4,
       usages: -1,
       activityLength: 3,
       name: "attack (hard)"
+    }));
+    Action.set(world, 3, ActionData({
+      minLvl: 0,
+      baseDamage: -10,
+      costsStaminaUsed: 15,
+      costsStaminaExpired: 3,
+      usages: -1,
+      activityLength: 3,
+      name: "defend"
+    }));
+    Action.set(world, 4, ActionData({
+      minLvl: 0,
+      baseDamage: 10,
+      costsStaminaUsed: 30,
+      costsStaminaExpired: 10,
+      usages: 3,
+      activityLength: 3,
+      name: "special"
     }));
     console.log("Actions added via IWorld ");
 

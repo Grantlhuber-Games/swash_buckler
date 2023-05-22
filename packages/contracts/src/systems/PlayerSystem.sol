@@ -26,7 +26,7 @@ contract PlayerSystem is System {
     Position.set(100, 100);
     Health.set(130);
     Stamina.set(30);
-    Intent.set(0, [1, 2]);
+    Intent.set(0, [1, 2, 3, 4]);
     //return Character.get();
   }
 

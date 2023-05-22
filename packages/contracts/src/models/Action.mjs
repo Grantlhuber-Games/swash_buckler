@@ -10,7 +10,7 @@ const
         schema: {
             //TODO effects such as counter attack
             minLvl: "uint32",
-            baseDamage: "uint32",
+            baseDamage: "int32",
             costsStaminaUsed: "uint32", // stamina costs
             costsStaminaExpired: "uint32", // stamina costs
             usages: "int8", // negative value means infinite
