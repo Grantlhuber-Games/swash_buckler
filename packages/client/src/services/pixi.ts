@@ -14,7 +14,7 @@ const globalVars = {
 };
 
 // This is the game loop
-export default function startGame(mudApp: any) { // the name of this function is misleading, it should be called startGame
+export default function startGame(mudApp: any) {
     console.log("myAvatar", mudApp.myAvatar);
     if(!mudApp) {
         alert("mudApp / avatar is null");
@@ -28,23 +28,20 @@ export default function startGame(mudApp: any) { // the name of this function is
 
     createLevel(app);
     createHUD(app);
-
-
-
-
+    createAnimations();
+    
     // Load the avatar image into a sprite
     let sprite = PIXI.Sprite.from("assets/goblin-gaylord.png");
     sprite.position.set(app.view.width / 2 - sprite.width / 2, app.view.height / 2 - sprite.height / 2); // center the avatar
-
+    
     sprite.scale.set(1); // scale the avatar
     sprite.anchor.set(0.5); // set the anchor to the center of the avatar
     sprite.position.set(app.view.width / 2, app.view.height / 2); // make sure that the avatar can't move outside of the screen
 
-
     const STAT_FIELDS_OBJ = createStats(sprite);
 
     // Options for how objects interact
-    // How fast the red square moves
+    // How fast the avator moves
     const movementSpeed = 0.05;
 
     app.stage.interactive = true;
@@ -220,8 +217,6 @@ export default function startGame(mudApp: any) { // the name of this function is
         }
     });
 
-    // Function to toggle fullscreen mode
-
     app.stage.addChild(sprite);
 }
 
@@ -271,7 +266,7 @@ function createHUD(app) {
     let text = new PIXI.Text(
         "Swash Buckler", globalVars.textStyle
     );
-    app.stage.addChild(text); // adding to app.stage makes it appear on the screen
+    app.stage.addChild(text);
 
     // Create a container for the fullscreen button
     const fullscreenButtonContainer = new PIXI.Container();
@@ -349,20 +344,55 @@ function createStats(playerSprite) {
 
     const tableWidth = Math.max(...widthElements);
     console.log("tableWidth", tableWidth)
-
-
+    
     const tableHeight = 450;
-    table.pivot.set(tableWidth / 2, tableHeight / 2); // set the pivot to the center of the table
+    table.pivot.set(tableWidth / 2, tableHeight / 2);
     table.scale.set(0.5);
     table.position.y = avatarBounds.height - 80;
     table.position.x = avatarBounds.width;
-
+    
     playerSprite.on("click", () => {
         table.visible = !table.visible;
     });
-
-    playerSprite.addChild(table); // adding to app.stage makes it appear on the screen
-
+    
+    playerSprite.addChild(table);
+    
     // return mapping easy key value access to update
     return pixiObjRet;
 }
+
+function createAnimations() {
+    // load the texture we need
+    console.log("Loading animations...");
+    PIXI.Assets.load([
+        "spritesheets/characters.json",
+    ]).then(() => { 
+            // get the sheet json data, required for resolving animations
+            const animations = PIXI.Assets.cache.get('spritesheets/character.json').data.animations;
+            console.log(animations);
+        
+            // create an animated sprite
+            const dude = PIXI.AnimatedSprite.fromFrames(animations["Walk"]);
+            console.log(dude); 
+    
+        // create an animated sprite
+        const character = PIXI.AnimatedSprite.fromFrames(animations["Walk"]);
+    
+        // configure + start animation:
+        dude.animationSpeed = 1 / 2;                      // 6 fps
+        // dude.position.set(1500, background.height - 780); // almost bottom-left corner of the canvas
+        dude.play();
+    
+        // add it to the stage and render!
+        app.stage.addChild(dude);
+    
+        // move the character to the right, restart on the left
+        app.ticker.add(delta => {
+            const speed = 8;
+            dude.x = (dude.x + speed * delta) % (background.width + 200);
+        });
+     });
+}
+
+
+ 
