@@ -289,12 +289,11 @@ function createPlayerHud(parentContainer: PIXI.Container) {
         "assets/icons/axe.png",
         "assets/icons/bow.png",
         "assets/icons/shield_heavy.png",
-        "assets/icons/bomb.png",
-        "assets/icons/molotov.png"
+        "assets/icons/bomb.png"
     ]
 
     // Create and add sprites to the array
-    let counter = 0;
+    let counter = 1;
     for(let intentEntry of intentIcons) {
         //`assets/icons/intent_0${i}.png`
         const sprite = PIXI.Sprite.from(intentEntry); // assets/icons/intent_1.png
@@ -305,6 +304,12 @@ function createPlayerHud(parentContainer: PIXI.Container) {
         hudContainer.addChild(sprite);
         counter++;
     }
+
+    const spriteCurrentIntent = PIXI.Sprite.from(intentIcons[0]); // assets/icons/intent_1.png
+    spriteCurrentIntent.x = -100;
+    spriteCurrentIntent.y = -100;
+    spriteCurrentIntent.scale.set(1.3);
+    hudContainer.addChild(spriteCurrentIntent);
 
     // Center the hudContainer
     hudContainer.position.set(parentContainer.width / 2 + 1230, 980);
