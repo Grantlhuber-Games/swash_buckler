@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { Health } from "../codegen/Tables.sol";
+import { addressToEntityKey } from "../addressToEntityKey.sol";
 
 contract HealthSystem is System {
 
@@ -15,7 +16,8 @@ contract HealthSystem is System {
     * @return new health value
     */
   function refill() public requireIsAlive returns (uint32) {
-    Health.set(MAX_HEALTH);
+    bytes32 player = addressToEntityKey(address(_msgSender()));
+    Health.set(player, MAX_HEALTH);
     return MAX_HEALTH;
   }
 
@@ -23,9 +25,10 @@ contract HealthSystem is System {
     * @dev revive entity
     * @return new health value
     */
-  function revive() public requireIsDead returns (uint32) {
+  function revive() public requirePlayer requireIsDead returns (uint32) {
+    bytes32 player = addressToEntityKey(address(_msgSender()));
     uint32 newValue = (MAX_HEALTH * REVIVE_HEALTH_PERCENTAGE / 100);
-    Health.set(newValue);
+    Health.set(player, newValue);
     return newValue;
   }
 
@@ -34,7 +37,8 @@ contract HealthSystem is System {
     * @return new health value
     */
   function kill() public requireIsAlive returns (uint32) {
-    Health.set(MIN_HEALTH);
+    bytes32 player = addressToEntityKey(address(_msgSender()));
+    Health.set(player, MIN_HEALTH);
     return MIN_HEALTH;
   }
 
@@ -44,12 +48,14 @@ contract HealthSystem is System {
     * @return new health value
     */
   function heal(uint32 addVal) public requireIsAlive returns (uint32){
-    uint32 health = Health.get();
+    bytes32 player = addressToEntityKey(address(_msgSender()));
+
+    uint32 health = Health.get(player);
     uint32 newValue = health + addVal;
     if(newValue > MAX_HEALTH) {
       newValue = MAX_HEALTH;
     }
-    Health.set(newValue);
+    Health.set(player, newValue);
     return newValue;
   }
 
@@ -59,7 +65,9 @@ contract HealthSystem is System {
     * @return new health value
     */
   function hurt(uint32 redVal) public requireIsAlive returns (uint32){
-    uint32 health = Health.get();
+    bytes32 player = addressToEntityKey(address(_msgSender()));
+
+    uint32 health = Health.get(player);
     uint32 newValue = 0;
     // uint so no underflow
     if(redVal < health) {
@@ -69,7 +77,7 @@ contract HealthSystem is System {
     if(newValue < MIN_HEALTH) {
       newValue = MIN_HEALTH;
     }
-    Health.set(newValue);
+    Health.set(player, newValue);
     return newValue;
   }
 
@@ -78,10 +86,12 @@ contract HealthSystem is System {
   /********************************************************************************************/
   // TODO add entity id bytes32 playerKey
   function isDead() public view returns (bool) {
-      return Health.get() == MIN_HEALTH;
+    bytes32 player = addressToEntityKey(address(_msgSender()));
+    return Health.get(player) == MIN_HEALTH;
   }
   function isAlive() public view returns (bool) {
-    return Health.get() > MIN_HEALTH;
+    bytes32 player = addressToEntityKey(address(_msgSender()));
+    return Health.get(player) > MIN_HEALTH;
   }
 
   /********************************************************************************************/
@@ -96,6 +106,12 @@ contract HealthSystem is System {
   modifier requireIsAlive()
   {
     require(isAlive(), "Player is dead. You can only revive.");
+    _;
+  }
+  // TODO why is this not working ...
+  modifier requirePlayer
+  {
+    bytes32 player = addressToEntityKey(address(_msgSender()));
     _;
   }
 

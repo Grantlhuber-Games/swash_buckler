@@ -2,7 +2,7 @@
 const model = {
     name: "Position",
     modelSchema: {
-        keySchema: {},
+        //keySchema: {},
         schema: {
             x: "int32",
             y: "int32"

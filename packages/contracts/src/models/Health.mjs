@@ -2,9 +2,7 @@
 const model = {
     name: "Health",
     modelSchema: {
-        keySchema: {
-           // id: "uint8" // explicitly no avatar msg.sender
-        },
+        // keySchema: {},
         schema: {
             health: "uint32"
         }

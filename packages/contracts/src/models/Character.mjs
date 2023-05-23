@@ -4,7 +4,7 @@ const
   model = {
     name: "Char",
     modelSchema: {
-        keySchema: {},
+        //keySchema: {},
         schema: {
             human: "bool",
             name: "string",

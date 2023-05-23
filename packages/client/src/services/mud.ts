@@ -185,11 +185,23 @@ function registerWindowFunctions(mudApp, mudObj: any) {
     };
 
     (window as any).createPlayer = async (name: string, charType: string) => {
+        //let sign = prompt("What's your name?");
+
         console.log("new player:", await createPlayer(name, charType));
+        document.dispatchEvent(new CustomEvent("onPlayerCreated",
+            {
+                detail:
+                    {
+                        name: name,
+                        charType: name
+                    }
+            }));
     };
 
     (window as any).spawnPlayer = async (x: number, y: number) => {
-        console.log("spawnPlayer:", await spawnPlayer(x, y));
+        let retSpawn = await spawnPlayer(x, y);
+        console.log("spawnPlayer:", retSpawn);
+        document.dispatchEvent(new Event("onPlayerSpawned"));
     };
 
 

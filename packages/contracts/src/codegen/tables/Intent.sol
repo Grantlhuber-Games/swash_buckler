@@ -36,7 +36,8 @@ library Intent {
   }
 
   function getKeySchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](0);
+    SchemaType[] memory _schema = new SchemaType[](1);
+    _schema[0] = SchemaType.BYTES32;
 
     return SchemaLib.encode(_schema);
   }
@@ -72,181 +73,203 @@ library Intent {
   }
 
   /** Get intents */
-  function getIntents() internal view returns (uint8 intents) {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function getIntents(bytes32 key) internal view returns (uint8 intents) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0);
     return (uint8(Bytes.slice1(_blob, 0)));
   }
 
   /** Get intents (using the specified store) */
-  function getIntents(IStore _store) internal view returns (uint8 intents) {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function getIntents(IStore _store, bytes32 key) internal view returns (uint8 intents) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 0);
     return (uint8(Bytes.slice1(_blob, 0)));
   }
 
   /** Set intents */
-  function setIntents(uint8 intents) internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function setIntents(bytes32 key, uint8 intents) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((intents)));
   }
 
   /** Set intents (using the specified store) */
-  function setIntents(IStore _store, uint8 intents) internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function setIntents(IStore _store, bytes32 key, uint8 intents) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((intents)));
   }
 
   /** Get actions */
-  function getActions() internal view returns (uint8[4] memory actions) {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function getActions(bytes32 key) internal view returns (uint8[4] memory actions) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1);
     return toStaticArray_uint8_4(SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint8());
   }
 
   /** Get actions (using the specified store) */
-  function getActions(IStore _store) internal view returns (uint8[4] memory actions) {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function getActions(IStore _store, bytes32 key) internal view returns (uint8[4] memory actions) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 1);
     return toStaticArray_uint8_4(SliceLib.getSubslice(_blob, 0, _blob.length).decodeArray_uint8());
   }
 
   /** Set actions */
-  function setActions(uint8[4] memory actions) internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function setActions(bytes32 key, uint8[4] memory actions) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     StoreSwitch.setField(_tableId, _keyTuple, 1, EncodeArray.encode(fromStaticArray_uint8_4(actions)));
   }
 
   /** Set actions (using the specified store) */
-  function setActions(IStore _store, uint8[4] memory actions) internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function setActions(IStore _store, bytes32 key, uint8[4] memory actions) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     _store.setField(_tableId, _keyTuple, 1, EncodeArray.encode(fromStaticArray_uint8_4(actions)));
   }
 
   /** Get the length of actions */
-  function lengthActions() internal view returns (uint256) {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function lengthActions(bytes32 key) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     uint256 _byteLength = StoreSwitch.getFieldLength(_tableId, _keyTuple, 1, getSchema());
     return _byteLength / 1;
   }
 
   /** Get the length of actions (using the specified store) */
-  function lengthActions(IStore _store) internal view returns (uint256) {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function lengthActions(IStore _store, bytes32 key) internal view returns (uint256) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     uint256 _byteLength = _store.getFieldLength(_tableId, _keyTuple, 1, getSchema());
     return _byteLength / 1;
   }
 
   /** Get an item of actions (unchecked, returns invalid data if index overflows) */
-  function getItemActions(uint256 _index) internal view returns (uint8) {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function getItemActions(bytes32 key, uint256 _index) internal view returns (uint8) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     bytes memory _blob = StoreSwitch.getFieldSlice(_tableId, _keyTuple, 1, getSchema(), _index * 1, (_index + 1) * 1);
     return (uint8(Bytes.slice1(_blob, 0)));
   }
 
   /** Get an item of actions (using the specified store) (unchecked, returns invalid data if index overflows) */
-  function getItemActions(IStore _store, uint256 _index) internal view returns (uint8) {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function getItemActions(IStore _store, bytes32 key, uint256 _index) internal view returns (uint8) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     bytes memory _blob = _store.getFieldSlice(_tableId, _keyTuple, 1, getSchema(), _index * 1, (_index + 1) * 1);
     return (uint8(Bytes.slice1(_blob, 0)));
   }
 
   /** Push an element to actions */
-  function pushActions(uint8 _element) internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function pushActions(bytes32 key, uint8 _element) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     StoreSwitch.pushToField(_tableId, _keyTuple, 1, abi.encodePacked((_element)));
   }
 
   /** Push an element to actions (using the specified store) */
-  function pushActions(IStore _store, uint8 _element) internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function pushActions(IStore _store, bytes32 key, uint8 _element) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     _store.pushToField(_tableId, _keyTuple, 1, abi.encodePacked((_element)));
   }
 
   /** Pop an element from actions */
-  function popActions() internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function popActions(bytes32 key) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     StoreSwitch.popFromField(_tableId, _keyTuple, 1, 1);
   }
 
   /** Pop an element from actions (using the specified store) */
-  function popActions(IStore _store) internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function popActions(IStore _store, bytes32 key) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     _store.popFromField(_tableId, _keyTuple, 1, 1);
   }
 
   /** Update an element of actions at `_index` */
-  function updateActions(uint256 _index, uint8 _element) internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function updateActions(bytes32 key, uint256 _index, uint8 _element) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     StoreSwitch.updateInField(_tableId, _keyTuple, 1, _index * 1, abi.encodePacked((_element)));
   }
 
   /** Update an element of actions (using the specified store) at `_index` */
-  function updateActions(IStore _store, uint256 _index, uint8 _element) internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function updateActions(IStore _store, bytes32 key, uint256 _index, uint8 _element) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     _store.updateInField(_tableId, _keyTuple, 1, _index * 1, abi.encodePacked((_element)));
   }
 
   /** Get the full data */
-  function get() internal view returns (IntentData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function get(bytes32 key) internal view returns (IntentData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     bytes memory _blob = StoreSwitch.getRecord(_tableId, _keyTuple, getSchema());
     return decode(_blob);
   }
 
   /** Get the full data (using the specified store) */
-  function get(IStore _store) internal view returns (IntentData memory _table) {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function get(IStore _store, bytes32 key) internal view returns (IntentData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     bytes memory _blob = _store.getRecord(_tableId, _keyTuple, getSchema());
     return decode(_blob);
   }
 
   /** Set the full data using individual values */
-  function set(uint8 intents, uint8[4] memory actions) internal {
+  function set(bytes32 key, uint8 intents, uint8[4] memory actions) internal {
     bytes memory _data = encode(intents, actions);
 
-    bytes32[] memory _keyTuple = new bytes32[](0);
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     StoreSwitch.setRecord(_tableId, _keyTuple, _data);
   }
 
   /** Set the full data using individual values (using the specified store) */
-  function set(IStore _store, uint8 intents, uint8[4] memory actions) internal {
+  function set(IStore _store, bytes32 key, uint8 intents, uint8[4] memory actions) internal {
     bytes memory _data = encode(intents, actions);
 
-    bytes32[] memory _keyTuple = new bytes32[](0);
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     _store.setRecord(_tableId, _keyTuple, _data);
   }
 
   /** Set the full data using the data struct */
-  function set(IntentData memory _table) internal {
-    set(_table.intents, _table.actions);
+  function set(bytes32 key, IntentData memory _table) internal {
+    set(key, _table.intents, _table.actions);
   }
 
   /** Set the full data using the data struct (using the specified store) */
-  function set(IStore _store, IntentData memory _table) internal {
-    set(_store, _table.intents, _table.actions);
+  function set(IStore _store, bytes32 key, IntentData memory _table) internal {
+    set(_store, key, _table.intents, _table.actions);
   }
 
   /** Decode the tightly packed blob using this table's schema */
@@ -278,20 +301,23 @@ library Intent {
   }
 
   /** Encode keys as a bytes32 array using this table's schema */
-  function encodeKeyTuple() internal pure returns (bytes32[] memory _keyTuple) {
-    _keyTuple = new bytes32[](0);
+  function encodeKeyTuple(bytes32 key) internal pure returns (bytes32[] memory _keyTuple) {
+    _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
   }
 
   /* Delete all data for given keys */
-  function deleteRecord() internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function deleteRecord(bytes32 key) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     StoreSwitch.deleteRecord(_tableId, _keyTuple);
   }
 
   /* Delete all data for given keys (using the specified store) */
-  function deleteRecord(IStore _store) internal {
-    bytes32[] memory _keyTuple = new bytes32[](0);
+  function deleteRecord(IStore _store, bytes32 key) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = bytes32((key));
 
     _store.deleteRecord(_tableId, _keyTuple);
   }

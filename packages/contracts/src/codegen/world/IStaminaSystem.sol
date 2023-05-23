@@ -12,9 +12,13 @@ interface IStaminaSystem {
 
   function exhaust(uint32 redVal) external returns (uint32);
 
+  function exhaustWithOrigin(bytes32 origin, uint32 redVal) external returns (uint32);
+
   function isExhausted() external view returns (bool);
 
   function isFresh() external view returns (bool);
 
   function hasSufficientStamina(uint32 intentStaminaCost) external returns (bool);
+
+  function hasSufficientStaminaWithOrigin(bytes32 origin, uint32 intentStaminaCost) external returns (bool);
 }

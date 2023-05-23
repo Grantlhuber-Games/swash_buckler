@@ -5,6 +5,11 @@ import attributes from "contracts/src/models/Attributes.mjs";
 let app = null;
 
 const GLOBAL_VARS = {
+    scene: {
+        playerContainer: null,
+        player: null,
+    },
+
     // for styling the texts
     textStyle: {
         fontSize: "30px",
@@ -32,46 +37,50 @@ const ANIMATIONS = Object.freeze({
 
 // This is the game loop
 export default function initPixi(mudApp: any) { // the name of this function is misleading, it should be called startGame
-    console.log("myAvatar", mudApp.myAvatar);
-    if (!mudApp) {
+    if(!mudApp) {
         alert("mudApp / avatar is null");
     }
+    mudApp.initAvatar("Horst Hrubesch", "bandit");
+    console.log("myAvatar", mudApp.myAvatar);
 
     const disableMouse = true; // disable mouse movement so that the game can be played with keyboard only
 
-    const PIXI_ASSETS = generateAssetArray(mudApp.myAvatar.character.charClass);
+    const PIXI_ASSETS = generateAssetArray(mudApp.getAvatar().character.charClass);
 
     app = new PIXI.Application({ width: 1920, height: 1080 }); // this is the game window
     // console.log("app", app.view.width);
     document.body.appendChild(app.view); // app.view is the canvas element currently being used. It contains the game
+
+
     PIXI.Assets.load(PIXI_ASSETS).then(() => {
-        createLevel(app);
-        createHUD(app);
+        console.log("loaded PIXI_ASSETS", PIXI_ASSETS);
 
         const mainContainer = new PIXI.Container();
-        const hudContainer = new PIXI.Container();
+
+        const lvlContainer = new PIXI.Container();
         const playerContainer = new PIXI.Container();
-        playerContainer.interactive = true;
+        const hudContainer = new PIXI.Container();
 
-        //const statsContainer = new PIXI.Container();
+        mainContainer.addChild(playerContainer);
+        mainContainer.addChild(hudContainer);
+        mainContainer.addChild(lvlContainer);
 
+        GLOBAL_VARS.scene.playerContainer = playerContainer;
+
+        // add lvl
+        createLevel(app, lvlContainer);
+        app.stage.addChild(lvlContainer); // FIXME if I drop this no avatar is show, I assume because of the order of the containers
+
+        // add huds
+        const globalHud = createHUD(app, hudContainer);
+        // createPlayerStats
+        //const statsTable = createPlayerStats(hudContainer);
+        const hud = createPlayerHud(hudContainer); // as of here updateHUD is available
+        GLOBAL_VARS.scene.hud = hud; // FIXME this is a hack, we should not need to do this
+
+        // add player
         const playerSprite = createPlayerAnimated(app, mudApp.myAvatar);
         playerContainer.addChild(playerSprite);
-        mainContainer.addChild(playerContainer);
-
-        // createPlayerStats
-        const statsTable = createPlayerStats(hudContainer, playerSprite);
-
-
-        const hud = createPlayerHud(hudContainer); // as of here updateHUD is available
-        // hud.updateHUD(mudApp.myAvatar.health, mudApp.myAvatar.stamina); // here we update the HUD with the current values
-        hud.updateHUD(100, 50); // here we update the HUD with 100 health and 50 stamina
-        // console.log("hud", hud); // here we can see the hudContainer and the updateHUD function
-
-        app.stage.addChild(hudContainer);
-        //mainContainer.addChild(statsTable);
-
-        //app.stage.interactive = true;
 
         app.stage.hitArea = app.screen;
 
@@ -125,81 +134,29 @@ export default function initPixi(mudApp: any) { // the name of this function is 
             }
         }
 
-        // Function to toggle fullscreen mode
+        // to add the mainContainer to screen, with everything
         app.stage.addChild(mainContainer);
     });
 }
 
 
-// FIXME if function has app param it does not work, because view is empty
-function toggleFullscreen() {
-    if (document.fullscreenElement) {
-        // Exit fullscreen
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-            // Firefox
-            document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) {
-            // Chrome, Safari and Opera
-            document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) {
-            // IE/Edge
-            document.msExitFullscreen();
-        }
-    } else {
-        // Enter fullscreen
-        if (app.view.requestFullscreen) {
-            app.view.requestFullscreen();
-        } else if (app.view.mozRequestFullScreen) {
-            // Firefox
-            app.view.mozRequestFullScreen();
-        } else if (app.view.webkitRequestFullscreen) {
-            // Chrome, Safari and Opera
-            app.view.webkitRequestFullscreen();
-        } else if (app.view.msRequestFullscreen) {
-            // IE/Edge
-            app.view.msRequestFullscreen();
-        }
-    }
-}
-
-function createLevel(app: PIXI.Application) {
+function createLevel(app: PIXI.Application, parentContainer: PIXI.Container) {
     // Create a sprite for the background image
     const randomNumber = Math.floor(Math.random() * 4) + 1;
     const background = PIXI.Sprite.from(`assets/background/background_0${randomNumber}.png`);
     background.width = app.view.width;
     background.height = app.view.height;
-    app.stage.addChild(background);
+    parentContainer.addChild(background);
 }
 
-function createHUD(app: PIXI.Application) {
-    // // Create a text element for the title
-    // let text = new PIXI.Text(
-    //     "Swash Buckler", GLOBAL_VARS.textStyle
-    // );
-    // app.stage.addChild(text); // adding to app.stage makes it appear on the screen
-    // Create a container for the fullscreen button
-    const fullscreenButtonContainer = new PIXI.Container();
-    // Create a button element for fullscreen
-    const fullscreenButton = new PIXI.Text(" Fullscreen", {
-        fontSize: "20px",
-        fill: "white",
-    });
-    // Set the position of the fullscreen button
-    fullscreenButton.position.set(0, 0
-        );
-    // Make it interactive to enable mouse and touch events
-    fullscreenButton.interactive = true;
-    fullscreenButtonContainer.addChild(fullscreenButton);
-
-    // Attach a click event listener to the fullscreen button
-
-    fullscreenButton.on("click", toggleFullscreen);
-
-    app.stage.addChild(fullscreenButtonContainer);
-    // Attach the toggleFullscreen function to the button's click event
-    fullscreenButton.addEventListener("click", toggleFullscreen);
+function createHUD(app: PIXI.Application, parentContainer: PIXI.Container) {
+    // Create a text element for the title
+    const logo = PIXI.Sprite.from('assets/ui/sb_logo.png'); // this is the background image for the hud
+    logo.scale.set(0.2); // scale the logo
+    // logo.anchor.set(0.5); // Set the anchor to the center of the image
+    logo.position.set(-25, 0); // Position the logo top left would be
+    parentContainer.addChild(logo); // Put the logo straight into the parentContainer
+    return logo;
 }
 
 function createPlayer(app: PIXI.Application) {
@@ -218,7 +175,9 @@ function createPlayer(app: PIXI.Application) {
 function createPlayerAnimated(app: PIXI.Application, avatar) {
     console.log("createPlayerAnimated", avatar)
     //
-    const playerSprite = animatePlayer(null, avatar, ANIMATIONS.IDLE)
+    const playerSprite = animatePlayer(null, avatar, ANIMATIONS.IDLE);
+    //playerSprite.visible = false;
+    GLOBAL_VARS.scene.player = playerSprite;
 
     // Load the avatar image into a sprite
     //const playerSprite = PIXI.Sprite.from("assets/sprites/");
@@ -229,6 +188,7 @@ function createPlayerAnimated(app: PIXI.Application, avatar) {
 
     // Toggle the visibility of the table on click
     playerSprite.interactive = true;
+
     return playerSprite;
 }
 
@@ -267,17 +227,14 @@ function createPlayerHud(parentContainer: PIXI.Container) {
 
     const hudContainer = new PIXI.Container(); // this is the container for the hud
     parentContainer.addChild(hudContainer); // add the hudContainer to the parentContainer
-    const logo = PIXI.Sprite.from('assets/ui/sb_logo.png'); // this is the background image for the hud
-    logo.scale.set(0.2); // scale the logo
-    // logo.anchor.set(0.5); // Set the anchor to the center of the image
-    logo.position.set(-25, 0); // Position the logo top left would be
+
+
     const hudBackground = PIXI.Sprite.from('assets/ui/hud_background.png'); // this is the background image for the hud
     hudBackground.anchor.set(0.5); // Set the anchor to the center of the image
     hudContainer.addChild(hudBackground); // Add the background image to the hudContainer
-    parentContainer.addChild(logo); // Put the logo straight into the parentContainer
 
     // Center the hudContainer
-    hudContainer.position.set(parentContainer.width / 2 + 1100, 980);
+    hudContainer.position.set(parentContainer.width / 2 + 1230, 980);
 
     // Health Bar
     const healthBar = new PIXI.Graphics();
@@ -289,13 +246,13 @@ function createPlayerHud(parentContainer: PIXI.Container) {
     hudContainer.addChild(healthBar);
 
     // Dexterity Bar
-    const dexterityBar = new PIXI.Graphics();
-    dexterityBar.beginFill(0x52a9fb); // Blue
-    dexterityBar.drawRect(0, 0, 420, 22); // position, width, height
-    dexterityBar.endFill(); // Close the fill
-    dexterityBar.x = -572; // Position the bar
-    dexterityBar.y = 51; // Position the bar
-    hudContainer.addChild(dexterityBar);
+    const staminaBar = new PIXI.Graphics();
+    staminaBar.beginFill(0x52a9fb); // Blue
+    staminaBar.drawRect(0, 0, 420, 22); // position, width, height
+    staminaBar.endFill(); // Close the fill
+    staminaBar.x = -572; // Position the bar
+    staminaBar.y = 51; // Position the bar
+    hudContainer.addChild(staminaBar);
 
     // Calculate the bounds of the hudContainer's children
     const bounds = hudContainer.getBounds();
@@ -309,10 +266,10 @@ function createPlayerHud(parentContainer: PIXI.Container) {
     hudContainer.scale.set(scale);
 
     // Update the HUD elements as needed
-    function updateHUD(health: number, dexterity: number) {
+    function updateHUD(health: number, stamina: number) {
         // Update the health bar
         healthBar.width = health;
-        dexterityBar.width = dexterity;
+        staminaBar.width = stamina;
     }
 
     if (parentContainer) {
@@ -327,9 +284,8 @@ function createPlayerHud(parentContainer: PIXI.Container) {
  *
  * @param playerSprite
  */
-function createPlayerStats(parentContainer: PIXI.Container, playerSprite: PIXI.Sprite) {
+function createPlayerStats(parentContainer: PIXI.Container) {
 
-    const avatarBounds = playerSprite.getBounds();
     // table to debug print the stats of an avatar
     const table = new PIXI.Container();
     //container.addChild(table);
@@ -385,9 +341,9 @@ function createPlayerStats(parentContainer: PIXI.Container, playerSprite: PIXI.S
     const tableHeight = 450;
     table.pivot.set(tableWidth / 2, tableHeight / 2); // set the pivot to the center of the table
     table.scale.set(0.5);
-    table.position.y = avatarBounds.height - 80;
-    table.position.x = avatarBounds.width;
 
+    table.position.x = app.screen.width - table.width-100;
+    table.position.y = app.screen.height;
     /*
     playerSprite.on("click", () => {
         console.log("table", table)
@@ -530,12 +486,18 @@ function addStatsChangeHandler(app: PIXI.Application, playerSprite: PIXI.Sprite,
         console.log("onStatsChanged", event);
         const character = mudApp.myAvatar.character;
         const attributes = mudApp.myAvatar.attributes;
+
+        // hud.updateHUD(mudApp.myAvatar.health, mudApp.myAvatar.stamina); // here we update the HUD with the current values
+        GLOBAL_VARS.scene.hud.updateHUD(mudApp.myAvatar.health, mudApp.myAvatar.stamina); // here we update the HUD with 100 health and 50 stamina
+        // console.log("hud", hud); // here we can see the hudContainer and the updateHUD function
+
+/*
         pixiObjRet["Name"].text = `Name (Class): ${character.name} (${character.charClass})`;
         pixiObjRet["Attributes"].text = `Attributes (St, Dex, Mana, Armor, Speed): ${attributes.strength}, ${attributes.dexterity}, ${attributes.mana}, ${attributes.armor}, ${attributes.speed}`;
         pixiObjRet["Position"].text = `Position: ${mudApp.myAvatar.position.x}, ${mudApp.myAvatar.position.y}`;
         pixiObjRet["Stamina"].text = `Stamina: ${mudApp.myAvatar.stamina}`;
         pixiObjRet["Health"].text = `Health: ${mudApp.myAvatar.health}`;
-
+*/
         if (mudApp.myAvatar.health <= 0) {
             playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.DIE);
         }
@@ -544,6 +506,18 @@ function addStatsChangeHandler(app: PIXI.Application, playerSprite: PIXI.Sprite,
     //playerSprite.on('onStatsChanged', onStatsChanged);
 
     document.addEventListener("onStatsChanged", onStatsChanged);
+
+
+    document.addEventListener("onPlayerCreated", (event)=> {
+        alert("onPlayerCreated");
+
+    });
+
+    document.addEventListener("onPlayerSpawned", (event)=> {
+        //let playerSprite = createPlayerAnimated(app, mudApp.myAvatar);
+
+       // GLOBAL_VARS.scene.playerContainer.addChild(playerSprite)
+    });
 
     //document.addEventListener("statsChanged", onStatsChanged);
 }
@@ -622,17 +596,56 @@ function mouseAction(app: PIXI.Application, playerSprite: PIXI.Sprite, mouseCoor
 }
 
 
+
+// FIXME if function has app param it does not work, because view is empty
+window.toggleFullscreen = toggleFullscreen;
+function toggleFullscreen() {
+    if (document.fullscreenElement) {
+        // Exit fullscreen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            // Firefox
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            // Chrome, Safari and Opera
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            // IE/Edge
+            document.msExitFullscreen();
+        }
+    } else {
+        // Enter fullscreen
+        if (app.view.requestFullscreen) {
+            app.view.requestFullscreen();
+        } else if (app.view.mozRequestFullScreen) {
+            // Firefox
+            app.view.mozRequestFullScreen();
+        } else if (app.view.webkitRequestFullscreen) {
+            // Chrome, Safari and Opera
+            app.view.webkitRequestFullscreen();
+        } else if (app.view.msRequestFullscreen) {
+            // IE/Edge
+            app.view.msRequestFullscreen();
+        }
+    }
+}
+
+
+
 /**
  *
  * @param charClass
  */
-function generateAssetArray(charClass) {
+function generateAssetArray(charClass: string) {
     console.log("generateAssetArray", charClass)
     const assets = [
         "assets/background/background_01.png",
         "assets/background/background_02.png",
         "assets/background/background_03.png",
-        "assets/background/background_04.png",
+        "assets/background/background_04.png"
+    ];
+    if(charClass) {
         /*
                 this will be added automatically
                 "assets/sprites/archer/idle.json",
@@ -641,37 +654,38 @@ function generateAssetArray(charClass) {
                 "assets/sprites/archer/walk.json",
                 "assets/sprites/archer/attack_01.json",
         */
-    ];
 
-    const classesAll = [
-        "archer",
-        "bandit",
-        "death_knight",
-        "necromancer",
-        "warlock",
-        "warrior"
-    ];
+        const classesAll = [
+            "archer",
+            "bandit",
+            "death_knight",
+            "necromancer",
+            "warlock",
+            "warrior"
+        ];
 
-    if (!classesAll.includes(charClass)) {
-        console.error("charClass=" + charClass + " is not support atm.");
-        throw Error("charClass=" + charClass + " is not support atm.");
-    }
+        if(!classesAll.includes(charClass)) {
+            console.error("charClass=" + charClass + " is not support atm.");
+            throw Error("charClass=" + charClass + " is not support atm.");
+        }
 
-    const classes = [charClass];
-    //FIXME use anim enums
-    const animations = [
-        "attack_01",
-        "die",
-        "idle",
-        "rise",
-        "walk"
-    ];
+        const classes = [charClass];
+        //FIXME use anim enums
+        const animations = [
+            "attack_01",
+            "die",
+            "idle",
+            "rise",
+            "walk"
+        ];
 
-    for (let classEntry of classes) {
-        for (let animEntry of animations) {
-            assets.push("assets/sprites/" + classEntry + "/" + animEntry + ".json")
+        for(let classEntry of classes) {
+            for(let animEntry of animations) {
+                assets.push("assets/sprites/" + classEntry + "/" + animEntry + ".json")
+            }
         }
     }
+
     console.warn("generateAssets", assets)
     return assets;
 }

@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 import { Health, Position, Action, Intent } from "../codegen/Tables.sol";
 import { ActionData } from "../codegen/tables/Action.sol";
-
+import { addressToEntityKey } from "../addressToEntityKey.sol";
 
 contract BattleSystem is System {
 

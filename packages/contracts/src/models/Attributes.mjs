@@ -2,7 +2,7 @@
 const model = {
     name: "Attributes",
     modelSchema: {
-        keySchema: {},
+        //keySchema: {},
         schema: {
             strength: "uint32",
             dexterity: "uint32",
