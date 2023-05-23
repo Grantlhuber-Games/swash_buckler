@@ -76,12 +76,7 @@ export default function initPixi(mudApp: any) { // the name of this function is 
         // createPlayerStats
         //const statsTable = createPlayerStats(hudContainer);
         const hud = createPlayerHud(hudContainer); // as of here updateHUD is available
-
-
-        // hud.updateHUD(mudApp.myAvatar.health, mudApp.myAvatar.stamina); // here we update the HUD with the current values
-        hud.updateHUD(30, 50); // here we update the HUD with 100 health and 50 stamina
-        // console.log("hud", hud); // here we can see the hudContainer and the updateHUD function
-
+        GLOBAL_VARS.scene.hud = hud; // FIXME this is a hack, we should not need to do this
 
         // add player
         const playerSprite = createPlayerAnimated(app, mudApp.myAvatar);
@@ -239,7 +234,7 @@ function createPlayerHud(parentContainer: PIXI.Container) {
     hudContainer.addChild(hudBackground); // Add the background image to the hudContainer
 
     // Center the hudContainer
-    hudContainer.position.set(parentContainer.width / 2 + 1200, 980);
+    hudContainer.position.set(parentContainer.width / 2 + 1230, 980);
 
     // Health Bar
     const healthBar = new PIXI.Graphics();
@@ -491,12 +486,18 @@ function addStatsChangeHandler(app: PIXI.Application, playerSprite: PIXI.Sprite,
         console.log("onStatsChanged", event);
         const character = mudApp.myAvatar.character;
         const attributes = mudApp.myAvatar.attributes;
+
+        // hud.updateHUD(mudApp.myAvatar.health, mudApp.myAvatar.stamina); // here we update the HUD with the current values
+        GLOBAL_VARS.scene.hud.updateHUD(mudApp.myAvatar.health, mudApp.myAvatar.stamina); // here we update the HUD with 100 health and 50 stamina
+        // console.log("hud", hud); // here we can see the hudContainer and the updateHUD function
+
+/*
         pixiObjRet["Name"].text = `Name (Class): ${character.name} (${character.charClass})`;
         pixiObjRet["Attributes"].text = `Attributes (St, Dex, Mana, Armor, Speed): ${attributes.strength}, ${attributes.dexterity}, ${attributes.mana}, ${attributes.armor}, ${attributes.speed}`;
         pixiObjRet["Position"].text = `Position: ${mudApp.myAvatar.position.x}, ${mudApp.myAvatar.position.y}`;
         pixiObjRet["Stamina"].text = `Stamina: ${mudApp.myAvatar.stamina}`;
         pixiObjRet["Health"].text = `Health: ${mudApp.myAvatar.health}`;
-
+*/
         if (mudApp.myAvatar.health <= 0) {
             playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.DIE);
         }
