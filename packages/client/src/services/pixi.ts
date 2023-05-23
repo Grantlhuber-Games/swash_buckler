@@ -26,18 +26,17 @@ const GLOBAL_VARS = {
  * @enum {{name: string, hex: string}}
  */
 const ANIMATIONS = Object.freeze({
-    ATTACK_01:   { name: "Attack01", file: "attack_01", loop: false },
-    DIE:   { name: "Die", loop: false },
-    IDLE:   { name: "Idle", loop: true },
-    RISE:   { name: "Rise", loop: false },
-    WALK:   { name: "Walk", loop: true },
+    ATTACK_01: { name: "Attack01", file: "attack_01", loop: false },
+    DIE: { name: "Die", loop: false },
+    IDLE: { name: "Idle", loop: true },
+    RISE: { name: "Rise", loop: false },
+    WALK: { name: "Walk", loop: true },
     //RESURRECT:   { name: "Resurrect" },
 });
 
 
 // This is the game loop
 export default function initPixi(mudApp: any) { // the name of this function is misleading, it should be called startGame
-
     if(!mudApp) {
         alert("mudApp / avatar is null");
     }
@@ -47,8 +46,6 @@ export default function initPixi(mudApp: any) { // the name of this function is 
     const disableMouse = true; // disable mouse movement so that the game can be played with keyboard only
 
     const PIXI_ASSETS = generateAssetArray(mudApp.getAvatar().character.charClass);
-
-//    const PIXI_ASSETS = generateAssetArray(mudApp.myAvatar.character.charClass);
 
     app = new PIXI.Application({ width: 1920, height: 1080 }); // this is the game window
     // console.log("app", app.view.width);
@@ -78,7 +75,10 @@ export default function initPixi(mudApp: any) { // the name of this function is 
         const globalHud = createHUD(app, hudContainer);
         // createPlayerStats
         const statsTable = createPlayerStats(hudContainer);
-        const hud = createPlayerHud(hudContainer);
+        const hud = createPlayerHud(hudContainer); // as of here updateHUD is available
+        // hud.updateHUD(mudApp.myAvatar.health, mudApp.myAvatar.stamina); // here we update the HUD with the current values
+        hud.updateHUD(100, 50); // here we update the HUD with 100 health and 50 stamina
+        // console.log("hud", hud); // here we can see the hudContainer and the updateHUD function
 
 
         // add player
@@ -198,7 +198,8 @@ function createHUD(app: PIXI.Application, parentContainer: PIXI.Container) {
         fill: "white",
     });
     // Set the position of the fullscreen button
-    fullscreenButton.position.set(0, 50);
+    fullscreenButton.position.set(0, 0
+        );
     // Make it interactive to enable mouse and touch events
     fullscreenButton.interactive = true;
     fullscreenButtonContainer.addChild(fullscreenButton);
@@ -253,18 +254,18 @@ function animatePlayer(playerSprite: PIXI.AnimatedSprite, avatar, animationType)
     console.log("animatePlayer", playerSprite, animationType);
     const currentAction = avatar.getAction();
 
-    if( currentAction === animationType.name && playerSprite) {
+    if (currentAction === animationType.name && playerSprite) {
         return playerSprite;
     }
     avatar.setAction(animationType.name);
     const CHAR_CLASS = avatar.character.charClass || "archer";
-    const animFile = animationType.file?animationType.file:animationType.name.toLowerCase();
-    const animations = PIXI.Assets.cache.get('assets/sprites/'  + CHAR_CLASS + "/" + animFile + '.json').data.animations;
+    const animFile = animationType.file ? animationType.file : animationType.name.toLowerCase();
+    const animations = PIXI.Assets.cache.get('assets/sprites/' + CHAR_CLASS + "/" + animFile + '.json').data.animations;
     console.log("playerSprite", playerSprite)
 
     let playerSpriteNew = PIXI.AnimatedSprite.fromFrames(animations[animationType.name]);
     // if playerSprit is set - change textures
-    if(playerSprite) {
+    if (playerSprite) {
         playerSprite.textures = playerSpriteNew.textures;
     } else { // if it is not set instantiate it
         playerSprite = playerSpriteNew;
@@ -275,23 +276,70 @@ function animatePlayer(playerSprite: PIXI.AnimatedSprite, avatar, animationType)
     playerSprite.loop = animationType.loop;
     playerSprite.play();
     //playerSprite.play();
+    playerSprite.zIndex = 1000;
     return playerSprite;
 }
 
 
 function createPlayerHud(parentContainer: PIXI.Container) {
 
-    const hud = new PIXI.Container();
+    const hudContainer = new PIXI.Container(); // this is the container for the hud
+    parentContainer.addChild(hudContainer); // add the hudContainer to the parentContainer
+    const logo = PIXI.Sprite.from('assets/ui/sb_logo.png'); // this is the background image for the hud
+    logo.scale.set(0.2); // scale the logo
+    // logo.anchor.set(0.5); // Set the anchor to the center of the image
+    logo.position.set(-25, 0); // Position the logo top left would be
+    const hudBackground = PIXI.Sprite.from('assets/ui/hud_background.png'); // this is the background image for the hud
+    hudBackground.anchor.set(0.5); // Set the anchor to the center of the image
+    hudContainer.addChild(hudBackground); // Add the background image to the hudContainer
+    parentContainer.addChild(logo); // Put the logo straight into the parentContainer
 
-    // TODO martin
+    // Center the hudContainer
+    hudContainer.position.set(parentContainer.width / 2 + 1100, 980);
 
+    // Health Bar
+    const healthBar = new PIXI.Graphics();
+    healthBar.beginFill(0xcb2f2c); // Red
+    healthBar.drawRect(0, 0, 380, 21); // position, width, height
+    healthBar.endFill(); // Close the fill
+    healthBar.x = -532; // Position the bar
+    healthBar.y =3; // Position the bar 
+    hudContainer.addChild(healthBar);
 
+    // Dexterity Bar
+    const dexterityBar = new PIXI.Graphics();
+    dexterityBar.beginFill(0x52a9fb); // Blue
+    dexterityBar.drawRect(0, 0, 420, 22); // position, width, height
+    dexterityBar.endFill(); // Close the fill
+    dexterityBar.x = -572; // Position the bar
+    dexterityBar.y = 51; // Position the bar
+    hudContainer.addChild(dexterityBar);
 
-    if(parentContainer) {
-        parentContainer.addChild(hud)
+    // Calculate the bounds of the hudContainer's children
+    const bounds = hudContainer.getBounds();
+
+    // Center the pivot of the hudContainer
+    hudContainer.pivot.x = bounds.width / 2;
+    hudContainer.pivot.y = bounds.height / 2;
+
+    // Scale the hudContainer to contain all its children
+    const scale = Math.max(bounds.width / hudContainer.width, bounds.height / hudContainer.height);
+    hudContainer.scale.set(scale);
+
+    // Update the HUD elements as needed
+    function updateHUD(health: number, dexterity: number) {
+        // Update the health bar
+        healthBar.width = health;
+        dexterityBar.width = dexterity;
     }
-    return hud;
+
+    if (parentContainer) {
+        parentContainer.addChild(hudContainer)
+    }
+    // Return the hudContainer and the updateHUD function
+    return { hudContainer, updateHUD };
 }
+
 
 /**
  *
@@ -347,7 +395,7 @@ function createPlayerStats(parentContainer: PIXI.Container) {
         pixiRetElement.push(statText);
         counterYDist++;
     }
-   let widthElements = pixiRetElement.map((x) => x.width)
+    let widthElements = pixiRetElement.map((x) => x.width)
 
     const tableWidth = Math.max(...widthElements);
 
@@ -364,7 +412,7 @@ function createPlayerStats(parentContainer: PIXI.Container) {
     });
     */
 
-    if(parentContainer) {
+    if (parentContainer) {
         parentContainer.addChild(table)
     }
 
@@ -460,7 +508,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
             setTimeout(() => {
 
                 window.removeIntent(true);
-                 }, 5000);
+            }, 5000);
 
         }
         // X key is 88
@@ -505,7 +553,7 @@ function addStatsChangeHandler(app: PIXI.Application, playerSprite: PIXI.Sprite,
         pixiObjRet["Stamina"].text = `Stamina: ${mudApp.myAvatar.stamina}`;
         pixiObjRet["Health"].text = `Health: ${mudApp.myAvatar.health}`;
 
-        if(mudApp.myAvatar.health <= 0) {
+        if (mudApp.myAvatar.health <= 0) {
             playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.DIE);
         }
 
