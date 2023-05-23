@@ -282,6 +282,30 @@ function createPlayerHud(parentContainer: PIXI.Container) {
     hudBackground.anchor.set(0.5); // Set the anchor to the center of the image
     hudContainer.addChild(hudBackground); // Add the background image to the hudContainer
 
+    const spritesArray = []; // Array to hold the sprites
+
+    const intentIcons = [
+        "assets/icons/dagger.png",
+        "assets/icons/axe.png",
+        "assets/icons/bow.png",
+        "assets/icons/shield_heavy.png",
+        "assets/icons/bomb.png",
+        "assets/icons/molotov.png"
+    ]
+
+    // Create and add sprites to the array
+    let counter = 0;
+    for(let intentEntry of intentIcons) {
+        //`assets/icons/intent_0${i}.png`
+        const sprite = PIXI.Sprite.from(intentEntry); // assets/icons/intent_1.png
+        sprite.x = counter * 100;
+        sprite.y = -3;
+        sprite.scale.set(0.8);
+        spritesArray.push(sprite);
+        hudContainer.addChild(sprite);
+        counter++;
+    }
+
     // Center the hudContainer
     hudContainer.position.set(parentContainer.width / 2 + 1230, 980);
 
@@ -721,7 +745,23 @@ function generateAssetArray(charClass?: string) {
         "assets/background/background_01.png",
         "assets/background/background_02.png",
         "assets/background/background_03.png",
-        "assets/background/background_04.png"
+        "assets/background/background_04.png",
+        "assets/icons/axe.png",
+        "assets/icons/beer.png",
+        "assets/icons/bomb.png",
+        "assets/icons/bow.png",
+        "assets/icons/cannon.png",
+        "assets/icons/club_nails.png",
+        "assets/icons/club_spiked.png",
+        "assets/icons/dagger.png",
+        "assets/icons/flag_white.png",
+        "assets/icons/helmet_heavy.png",
+        "assets/icons/helmet_wood.png",
+        "assets/icons/molotov.png",
+        "assets/icons/shield_heavy.png",
+        "assets/icons/shield_wood.png",
+        "assets/icons/sword_basic.png",
+        "assets/icons/sword_sabre.png"
     ];
     if(charClass) {
         /*
