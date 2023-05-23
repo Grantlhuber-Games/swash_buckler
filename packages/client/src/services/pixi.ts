@@ -309,7 +309,11 @@ function createPlayerHud(parentContainer: PIXI.Container) {
     spriteCurrentIntent.x = -100;
     spriteCurrentIntent.y = -100;
     spriteCurrentIntent.scale.set(1.3);
+    spriteCurrentIntent.visible = false
+    GLOBAL_VARS.scene.currentIntent = spriteCurrentIntent;
     hudContainer.addChild(spriteCurrentIntent);
+
+
 
     // Center the hudContainer
     hudContainer.position.set(parentContainer.width / 2 + 1230, 980);
@@ -538,24 +542,27 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite2: PIXI.Sprite, m
         if (key.keyCode === 89) {
             console.warn("soft Fight call hurt 20 (addintent + wait 5 sec + removeintent)");
             window.addIntent(1);
+            GLOBAL_VARS.scene.currentIntent.visible = true
             window.hurt(20);
-            playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.ATTACK_01);
+            //playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.ATTACK_01);
             setTimeout(() => {
-
-                window.removeIntent(true);
+                GLOBAL_VARS.scene.currentIntent.visible = false;
+                window.removeIntent(false);
             }, 5000);
 
         }
         // X key is 88
         if (key.keyCode === 88) {
             console.warn("hard Fight call hurt 50 (addintent + wait 5 sec + removeintent)");
-            window.addIntent(2)
+            window.addIntent(2);
+            GLOBAL_VARS.scene.currentIntent.visible = true;
             window.hurt(50);
-            playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.ATTACK_01);
-            setTimeout(() => {
 
+            setTimeout(() => {
+                GLOBAL_VARS.scene.currentIntent.visible = false;
+                playerSprite = animatePlayer(GLOBAL_VARS.scene.player, mudApp.myAvatar, ANIMATIONS.ATTACK_01);
                 window.removeIntent(true);
-            }, 5000);
+            }, 3000);
         }
         // C key is 67
         if (key.keyCode === 67) {
@@ -601,7 +608,7 @@ function addStatsChangeHandler(app: PIXI.Application, playerSprite: PIXI.Sprite,
         pixiObjRet["Health"].text = `Health: ${mudApp.myAvatar.health}`;
 */
         if (mudApp.myAvatar.health <= 0) {
-            playerSprite = createPlayerAnimated(playerSprite, mudApp.myAvatar, ANIMATIONS.DIE);
+            playerSprite = animatePlayer(GLOBAL_VARS.scene.player, mudApp.myAvatar, ANIMATIONS.DIE);
         }
 
     };
