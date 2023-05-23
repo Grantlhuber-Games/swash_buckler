@@ -74,8 +74,10 @@ export default function initPixi(mudApp: any) { // the name of this function is 
         // add huds
         const globalHud = createHUD(app, hudContainer);
         // createPlayerStats
-        const statsTable = createPlayerStats(hudContainer);
+        //const statsTable = createPlayerStats(hudContainer);
         const hud = createPlayerHud(hudContainer); // as of here updateHUD is available
+
+
         // hud.updateHUD(mudApp.myAvatar.health, mudApp.myAvatar.stamina); // here we update the HUD with the current values
         hud.updateHUD(30, 50); // here we update the HUD with 100 health and 50 stamina
         // console.log("hud", hud); // here we can see the hudContainer and the updateHUD function
@@ -143,39 +145,6 @@ export default function initPixi(mudApp: any) { // the name of this function is 
 }
 
 
-// FIXME if function has app param it does not work, because view is empty
-function toggleFullscreen() {
-    if (document.fullscreenElement) {
-        // Exit fullscreen
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-            // Firefox
-            document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) {
-            // Chrome, Safari and Opera
-            document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) {
-            // IE/Edge
-            document.msExitFullscreen();
-        }
-    } else {
-        // Enter fullscreen
-        if (app.view.requestFullscreen) {
-            app.view.requestFullscreen();
-        } else if (app.view.mozRequestFullScreen) {
-            // Firefox
-            app.view.mozRequestFullScreen();
-        } else if (app.view.webkitRequestFullscreen) {
-            // Chrome, Safari and Opera
-            app.view.webkitRequestFullscreen();
-        } else if (app.view.msRequestFullscreen) {
-            // IE/Edge
-            app.view.msRequestFullscreen();
-        }
-    }
-}
-
 function createLevel(app: PIXI.Application, parentContainer: PIXI.Container) {
     // Create a sprite for the background image
     const randomNumber = Math.floor(Math.random() * 4) + 1;
@@ -187,31 +156,12 @@ function createLevel(app: PIXI.Application, parentContainer: PIXI.Container) {
 
 function createHUD(app: PIXI.Application, parentContainer: PIXI.Container) {
     // Create a text element for the title
-    // Create a container for the fullscreen button
-    const fullscreenButtonContainer = new PIXI.Container();
-    // Create a button element for fullscreen
-    const fullscreenButton = new PIXI.Text(" Fullscreen", {
-        fontSize: "20px",
-        fill: "white",
-    });
-    // Set the position of the fullscreen button
-    fullscreenButton.position.set(0, 0
-        );
-    // Make it interactive to enable mouse and touch events
-    fullscreenButton.interactive = true;
-    fullscreenButtonContainer.addChild(fullscreenButton);
-
-    // Attach a click event listener to the fullscreen button
-
-    fullscreenButton.on("click", toggleFullscreen);
-
-
-    // Attach the toggleFullscreen function to the button's click event
-    fullscreenButton.addEventListener("click", toggleFullscreen);
-
-    parentContainer.addChild(fullscreenButtonContainer);
-
-    return fullscreenButtonContainer;
+    const logo = PIXI.Sprite.from('assets/ui/sb_logo.png'); // this is the background image for the hud
+    logo.scale.set(0.2); // scale the logo
+    // logo.anchor.set(0.5); // Set the anchor to the center of the image
+    logo.position.set(-25, 0); // Position the logo top left would be
+    parentContainer.addChild(logo); // Put the logo straight into the parentContainer
+    return logo;
 }
 
 function createPlayer(app: PIXI.Application) {
@@ -282,17 +232,14 @@ function createPlayerHud(parentContainer: PIXI.Container) {
 
     const hudContainer = new PIXI.Container(); // this is the container for the hud
     parentContainer.addChild(hudContainer); // add the hudContainer to the parentContainer
-    const logo = PIXI.Sprite.from('assets/ui/sb_logo.png'); // this is the background image for the hud
-    logo.scale.set(0.2); // scale the logo
-    // logo.anchor.set(0.5); // Set the anchor to the center of the image
-    logo.position.set(-25, 0); // Position the logo top left would be
+
+
     const hudBackground = PIXI.Sprite.from('assets/ui/hud_background.png'); // this is the background image for the hud
     hudBackground.anchor.set(0.5); // Set the anchor to the center of the image
     hudContainer.addChild(hudBackground); // Add the background image to the hudContainer
-    parentContainer.addChild(logo); // Put the logo straight into the parentContainer
 
     // Center the hudContainer
-    hudContainer.position.set(parentContainer.width / 2 + 1100, 980);
+    hudContainer.position.set(parentContainer.width / 2 + 1200, 980);
 
     // Health Bar
     const healthBar = new PIXI.Graphics();
@@ -304,13 +251,13 @@ function createPlayerHud(parentContainer: PIXI.Container) {
     hudContainer.addChild(healthBar);
 
     // Dexterity Bar
-    const dexterityBar = new PIXI.Graphics();
-    dexterityBar.beginFill(0x52a9fb); // Blue
-    dexterityBar.drawRect(0, 0, 420, 22); // position, width, height
-    dexterityBar.endFill(); // Close the fill
-    dexterityBar.x = -572; // Position the bar
-    dexterityBar.y = 51; // Position the bar
-    hudContainer.addChild(dexterityBar);
+    const staminaBar = new PIXI.Graphics();
+    staminaBar.beginFill(0x52a9fb); // Blue
+    staminaBar.drawRect(0, 0, 420, 22); // position, width, height
+    staminaBar.endFill(); // Close the fill
+    staminaBar.x = -572; // Position the bar
+    staminaBar.y = 51; // Position the bar
+    hudContainer.addChild(staminaBar);
 
     // Calculate the bounds of the hudContainer's children
     const bounds = hudContainer.getBounds();
@@ -324,10 +271,10 @@ function createPlayerHud(parentContainer: PIXI.Container) {
     hudContainer.scale.set(scale);
 
     // Update the HUD elements as needed
-    function updateHUD(health: number, dexterity: number) {
+    function updateHUD(health: number, stamina: number) {
         // Update the health bar
         healthBar.width = health;
-        dexterityBar.width = dexterity;
+        staminaBar.width = stamina;
     }
 
     if (parentContainer) {
@@ -646,6 +593,43 @@ function mouseAction(app: PIXI.Application, playerSprite: PIXI.Sprite, mouseCoor
         window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
     }
 }
+
+
+
+// FIXME if function has app param it does not work, because view is empty
+window.toggleFullscreen = toggleFullscreen;
+function toggleFullscreen() {
+    if (document.fullscreenElement) {
+        // Exit fullscreen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            // Firefox
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            // Chrome, Safari and Opera
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            // IE/Edge
+            document.msExitFullscreen();
+        }
+    } else {
+        // Enter fullscreen
+        if (app.view.requestFullscreen) {
+            app.view.requestFullscreen();
+        } else if (app.view.mozRequestFullScreen) {
+            // Firefox
+            app.view.mozRequestFullScreen();
+        } else if (app.view.webkitRequestFullscreen) {
+            // Chrome, Safari and Opera
+            app.view.webkitRequestFullscreen();
+        } else if (app.view.msRequestFullscreen) {
+            // IE/Edge
+            app.view.msRequestFullscreen();
+        }
+    }
+}
+
 
 
 /**

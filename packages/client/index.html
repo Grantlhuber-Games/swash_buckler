@@ -11,10 +11,14 @@
       .ui-tools {
         position: absolute;
         padding: 10px;
-        bottom: 0px;
+        top: 0px;
+        right: 0px;
         color: white;
         background: rgba(0, 0, 0, 0.5);
        }
+      .tool-button {
+
+      }
 
     </style>
 
@@ -23,27 +27,49 @@
     <script type="module" src="/src/index.ts"></script>
     <div class="ui-tools">
       <div>
-        Avatar: <span id="avatar"></span>
-        <button onclick="window.createPlayer('Horst Rubesch der zweite', 'bandit')">createPlayer</button>
-        <button onclick="window.spawnPlayer(0,10)">spawnPlayer</button>
-        <br>
-      <div>
-        Char: <span id="character"></span>
+        <button class="tool-button" onclick="window.toggleFullscreen()">Fullscreen</button>
+      </div>
+        <div>
+          Avatar: <span id="avatar"></span>
+          <button class="tool-button" onclick="window.createPlayer('Horst Rubesch der zweite', 'bandit')">createPlayer</button>
+          <button class="tool-button" onclick="window.spawnPlayer(0,10)">spawnPlayer</button>
+        <div>
 
-        Attributes: <span id="attributes"></span><br>
-        Position: <span id="position"></span><br>
-        Intent: <span id="intent"></span>
-        <button onclick="window.addIntent(1)">addIntent 1</button>
-        <button onclick="window.removeIntent(false)">removeIntent used=false</button>
-        <button onclick="window.removeIntent(true)">removeIntent used=true</button>
+        <div>
+          Char: <span id="character"></span>
+          <button class="tool-button" onclick="window.createPlayer('Horst Rubesch')">createPlayer</button><br>
+          Attributes: <span id="attributes"></span><br>
+          Position: <span id="position"></span><br>
+          Intent: <span id="intent"></span>
+          <button class="tool-button" onclick="window.addIntent(1)">addIntent 1</button>
+          <button class="tool-button" onclick="window.removeIntent(false)">removeIntent used=false</button>
+          <button class="tool-button" onclick="window.removeIntent(true)">removeIntent used=true</button>
+        </div>
 
-      <div>Position: <span id="position"></span></div>
-      <div>Health: <span id="health"> </span> / 100</div>
-      <button onclick="window.refill()">refill</button>
-      <button onclick="window.kill()">kill</button>
-      <button onclick="window.revive()">revive</button>
-      <button onclick="window.heal(20)">heal 20</button>
-      <button onclick="window.hurt(5)">hurt 5</button>
+        <div>
+          Health: <span id="health"> </span> / 100
+          <button class="tool-button" onclick="window.refill()">refill</button>
+          <button class="tool-button" onclick="window.kill()">kill</button>
+          <button class="tool-button" onclick="window.revive()">revive</button>
+          <button class="tool-button" onclick="window.heal(20)">heal 20</button>
+          <button class="tool-button" onclick="window.hurt(5)">hurt 5</button>
+        </div>
+        <div>
+          Stamina: <span id="stamina"> </span>
+          <button class="tool-button" onclick="window.refillStamina()">refillStamina</button>
+          <button class="tool-button" onclick="window.drain()">drain</button>
+          <button class="tool-button" onclick="window.rest(20)">rest 20</button>
+          <button class="tool-button" onclick="window.exhaust(5)">exhaust 5</button>
+        </div>
+
+        <div>
+          Actions: <span id="actions"></span>
+        </div>
+
+        <div>
+          Counter: <span id="counter">0</span>
+          <button class="tool-button" onclick="window.increment()" >Increment</button>
+        </div>
     </div>
   </body>
 </html>
