@@ -15,7 +15,7 @@ export function createSystemCalls(
   const setPosition = async (x: number, y: number) => {
     const tx = await worldSend("setPosition", [x, y]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
-    return getComponentValue(Position, singletonEntity);
+//    return getComponentValue(Position, singletonEntity);
   };
 
   const getActionById = async (actionId: number) => {
@@ -107,7 +107,7 @@ function createCallsForStaminaSystem(
   const exhaust = async (x: number) => {
     const tx = await worldSend("exhaust", [x]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
-    return getComponentValue(Stamina, singletonEntity);
+    //return getComponentValue(Stamina, singletonEntity);
   };
 
   const rest = async (x: number) => {

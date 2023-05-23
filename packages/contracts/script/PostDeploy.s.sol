@@ -21,8 +21,8 @@ contract PostDeploy is Script {
     uint32 newValue = world.increment();
     console.log("Increment via IWorld:", newValue);
 
-    uint32 newValue2 = world.revive();
-    console.log("Health revive via IWorld: ", newValue2);
+    //uint32 newValue2 = world.revive();
+    //console.log("Health revive via IWorld: ", newValue2);
 
     //Static fields must come before dynamic fields in the schema
     Action.set(world, 1, ActionData({

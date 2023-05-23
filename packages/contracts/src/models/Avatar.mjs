@@ -4,7 +4,7 @@ const
   model = {
     name: "Avatar",
     modelSchema: {
-        keySchema: {},
+        //keySchema: {},
         schema: {
             spawned: "bool"
         }

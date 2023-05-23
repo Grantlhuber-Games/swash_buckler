@@ -2,7 +2,7 @@
 const model = {
     name: "Stamina",
     modelSchema: {
-        keySchema: {},
+        //keySchema: {},
         schema: {
             stamina: "uint32"
         }
