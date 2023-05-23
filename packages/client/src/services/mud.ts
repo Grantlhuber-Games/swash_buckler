@@ -119,8 +119,10 @@ function subscribeToComponents(mudApp, components: any) {
     // Components expose a stream that triggers when the component is updated.
     components.Avatar.update$.subscribe((update: any) => {
         const [nextValue, prevValue] = update.value;
-        let actions = JSON.stringify(nextValue);
-        document.getElementById("avatar")!.innerHTML = actions;
+        let avatar = JSON.stringify(nextValue);
+        document.getElementById("avatar")!.innerHTML = avatar;
+        console.log("Avatar updated", update, { nextValue, prevValue });
+        mudApp.myAvatar.setSpawned(nextValue?.spawned);
     });
 
     // Components expose a stream that triggers when the component is updated.

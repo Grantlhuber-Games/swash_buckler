@@ -40,17 +40,21 @@ export default function initPixi(mudApp: any) { // the name of this function is 
     if(!mudApp) {
         alert("mudApp / avatar is null");
     }
-    mudApp.initAvatar("Horst Hrubesch", "bandit");
-    console.log("myAvatar", mudApp.myAvatar);
 
     const disableMouse = true; // disable mouse movement so that the game can be played with keyboard only
-
-    const PIXI_ASSETS = generateAssetArray(mudApp.getAvatar().character.charClass);
-
     app = new PIXI.Application({ width: 1920, height: 1080 }); // this is the game window
     // console.log("app", app.view.width);
     document.body.appendChild(app.view); // app.view is the canvas element currently being used. It contains the game
 
+    // generate with agent
+    /*
+        const PIXI_ASSETS = generateAssetArray(); //Without only lvl assets
+    */
+
+    mudApp.initAvatar("Horst Hrubesch", "bandit");
+    const PIXI_ASSETS = generateAssetArray(); //Without only lvl assets
+    //const PIXI_ASSETS = generateAssetArray(mudApp.getAvatar().character.charClass);
+    /**/
 
     PIXI.Assets.load(PIXI_ASSETS).then(() => {
         console.log("loaded PIXI_ASSETS", PIXI_ASSETS);
@@ -80,7 +84,10 @@ export default function initPixi(mudApp: any) { // the name of this function is 
 
         // add player
         const playerSprite = createPlayerAnimated(app, mudApp.myAvatar);
-        playerContainer.addChild(playerSprite);
+        if(playerSprite) {
+            playerContainer.addChild(playerSprite);
+        }
+
 
         app.stage.hitArea = app.screen;
 
@@ -96,17 +103,23 @@ export default function initPixi(mudApp: any) { // the name of this function is 
         });
         // mouse events end
 
+        //add filter
         const blurFilter1 = new PIXI.BlurFilter();
         const colorMatrix = new PIXI.ColorMatrixFilter();
-        playerSprite.filters= [blurFilter1, colorMatrix];
+        if(playerSprite) {
+            playerSprite.filters= [blurFilter1, colorMatrix];
+        }
+
 
         // Listen for animate update
         app.ticker.add((delta) => {
             if (!disableMouse) {
                 mouseAction(app, playerSprite, mouseCoords, delta);
             }
-            adjustBlurToStamina(mudApp.myAvatar.stamina);
-            adjustBrightnessToHealth(mudApp.myAvatar.health);
+            if(mudApp.myAvatar) {
+                adjustBlurToStamina(mudApp.myAvatar.stamina);
+                adjustBrightnessToHealth(mudApp.myAvatar.health);
+            }
         });
 
         function adjustBlurToStamina(stamina) {
@@ -173,8 +186,11 @@ function createPlayer(app: PIXI.Application) {
 }
 
 function createPlayerAnimated(app: PIXI.Application, avatar) {
-    console.log("createPlayerAnimated", avatar)
-    //
+    console.log("createPlayerAnimated", avatar);
+    if(!avatar || !avatar.isSpawned()) {
+        return null;
+    }
+
     const playerSprite = animatePlayer(null, avatar, ANIMATIONS.IDLE);
     //playerSprite.visible = false;
     GLOBAL_VARS.scene.player = playerSprite;
@@ -199,8 +215,17 @@ function animatePlayer(playerSprite: PIXI.AnimatedSprite, avatar, animationType)
     if (currentAction === animationType.name && playerSprite) {
         return playerSprite;
     }
-    avatar.setAction(animationType.name);
+
+
     const CHAR_CLASS = avatar.character.charClass || "archer";
+
+    const PIXI_ASSETS = generateAssetArray(CHAR_CLASS); //Without only lvl assets
+    //const PIXI_ASSETS = generateAssetArray(mudApp.getAvatar().character.charClass);
+    /**/
+
+
+    avatar.setAction(animationType.name);
+
     const animFile = animationType.file ? animationType.file : animationType.name.toLowerCase();
     const animations = PIXI.Assets.cache.get('assets/sprites/' + CHAR_CLASS + "/" + animFile + '.json').data.animations;
     console.log("playerSprite", playerSprite)
@@ -359,7 +384,8 @@ function createPlayerStats(parentContainer: PIXI.Container) {
     return table;
 }
 
-function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mudApp, pixiObjRet) {
+function addKeyboardHandler(app: PIXI.Application, playerSprite2: PIXI.Sprite, mudApp, pixiObjRet) {
+    document.dispatchEvent(new Event("onRemoveKeyboardListener"));
     // KEYBOARD START
     // Set the width and height of our boxes
     const boxWidth = app.view.width / 100;
@@ -371,6 +397,8 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
         console.log("keydown", key);
         // W Key is 87
         // Up arrow is 87
+        let playerSprite = GLOBAL_VARS.scene.player;
+
         if (key.keyCode === 87 || key.keyCode === 38) {
             // If the W key or the Up arrow is pressed, move the player up.
             if (playerSprite.position.y != 0) {
@@ -477,6 +505,12 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite: PIXI.Sprite, mu
     }
     // Add the 'keydown' event listener to our document
     document.addEventListener("keydown", onKeyDown);
+    
+    document.addEventListener("onRemoveKeyboardListener", () => {
+        document.removeEventListener("keydown", onKeyDown)
+
+    }, { once: true});
+
     //KEYBOARD END
 }
 
@@ -499,7 +533,7 @@ function addStatsChangeHandler(app: PIXI.Application, playerSprite: PIXI.Sprite,
         pixiObjRet["Health"].text = `Health: ${mudApp.myAvatar.health}`;
 */
         if (mudApp.myAvatar.health <= 0) {
-            playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.DIE);
+            playerSprite = createPlayerAnimated(playerSprite, mudApp.myAvatar, ANIMATIONS.DIE);
         }
 
     };
@@ -514,9 +548,14 @@ function addStatsChangeHandler(app: PIXI.Application, playerSprite: PIXI.Sprite,
     });
 
     document.addEventListener("onPlayerSpawned", (event)=> {
-        //let playerSprite = createPlayerAnimated(app, mudApp.myAvatar);
+        const PIXI_ASSETS = generateAssetArray(mudApp.getAvatar().character.charClass);
+        PIXI.Assets.load(PIXI_ASSETS).then(() => {
+            let playerSprite = createPlayerAnimated(app, mudApp.myAvatar);
+            GLOBAL_VARS.scene.playerContainer.addChild(playerSprite);
 
-       // GLOBAL_VARS.scene.playerContainer.addChild(playerSprite)
+            addKeyboardHandler(app, playerSprite, mudApp, GLOBAL_VARS.pixiStats);
+        })
+
     });
 
     //document.addEventListener("statsChanged", onStatsChanged);
@@ -637,7 +676,7 @@ function toggleFullscreen() {
  *
  * @param charClass
  */
-function generateAssetArray(charClass: string) {
+function generateAssetArray(charClass?: string) {
     console.log("generateAssetArray", charClass)
     const assets = [
         "assets/background/background_01.png",

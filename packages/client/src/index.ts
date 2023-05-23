@@ -18,6 +18,7 @@ class App {
 
   initAvatar(name: string, charClass: string) {
     this.myAvatar = new Avatar({name: name, charClass: charClass}, {"strength": 20}, {x: 0, y: 0}, 100, 100, {intents: 0, actions: []});
+    console.log("MudApp initAvatar myAvatar=", this.myAvatar)
   }
 
   async init() {

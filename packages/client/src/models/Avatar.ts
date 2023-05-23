@@ -26,8 +26,9 @@ export default class Avatar {
 
         // js only
         this.action = "Idle";
-
     }
+
+
 
     private setCharacterByField(_name, _human, _description, _charClass) {
         console.log("avatar: setCharacter", _name, _human, _description, _charClass)
@@ -39,6 +40,12 @@ export default class Avatar {
         }
     }
 
+    public isSpawned() {
+        return this.spawned === true;
+    }
+    public setSpawned(newVal: boolean) {
+        this.spawned = newVal;
+    }
     /**
      * Contains the current animation.name
      * @param newAction
