@@ -65,7 +65,10 @@ export default function initPixi(mudApp: any) { // the name of this function is 
         const playerContainer = new PIXI.Container();
         const hudContainer = new PIXI.Container();
 
+        const opponentContainer = new PIXI.Container();
+
         mainContainer.addChild(playerContainer);
+        mainContainer.addChild(opponentContainer);
         mainContainer.addChild(hudContainer);
         mainContainer.addChild(lvlContainer);
 
@@ -170,6 +173,27 @@ function createHUD(app: PIXI.Application, parentContainer: PIXI.Container) {
     logo.position.set(-25, 0); // Position the logo top left would be
     parentContainer.addChild(logo); // Put the logo straight into the parentContainer
     return logo;
+}
+
+function createOpponents(app: PIXI.Application) {
+    /*
+    document.addEventListener("onOpponentsSpawned", myfunction(obj) {
+        const playerSprite = PIXI.Sprite.from("assets/goblin-gaylord.png");
+        playerSprite.position.set(app.view.width / 2 - playerSprite.width / 2, app.view.height / 2 - playerSprite.height / 2); // center the avatar
+        playerSprite.scale.set(1); // scale the avatar
+        playerSprite.anchor.set(0.5); // set the anchor to the center of the avatar
+        playerSprite.position.set(app.view.width / 2, app.view.height / 2); // make sure that the avatar can't move outside of the screen
+
+        // Toggle the visibility of the table on click
+        playerSprite.interactive = true;
+        return playerSprite;
+
+    });
+*/
+    let jo = window.queryTest();
+    console.log("createOpponents", jo)
+    // Load the avatar image into a sprite
+
 }
 
 function createPlayer(app: PIXI.Application) {
@@ -403,12 +427,14 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite2: PIXI.Sprite, m
             // If the W key or the Up arrow is pressed, move the player up.
             if (playerSprite.position.y != 0) {
                 // Don't move up if the player is at the top of the stage
-                playerSprite.position.y -= boxHeight;
-                playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.WALK);
-                window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
-                console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
-
-
+                if(mudApp.myAvatar.stamina > 0) {
+                    playerSprite.position.y -= boxHeight;
+                    playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.WALK);
+                    window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
+                    console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
+                } else {
+                    playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.IDLE);
+                }
             }
         }
         // S Key is 83
@@ -416,11 +442,15 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite2: PIXI.Sprite, m
         if (key.keyCode === 83 || key.keyCode === 40) {
             // If the S key or the Down arrow is pressed, move the player down.
             if (playerSprite.position.y != app.view.height - boxHeight) {
-                // Don't move down if the player is at the bottom of the stage
-                playerSprite.position.y += boxHeight;
-                playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.WALK);
-                window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
-                console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
+                if(mudApp.myAvatar.stamina > 0) {
+                    // Don't move down if the player is at the bottom of the stage
+                    playerSprite.position.y += boxHeight;
+                    playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.WALK);
+                    window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
+                    console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
+                } else {
+                    playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.IDLE);
+                }
             }
 
         }
@@ -430,15 +460,20 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite2: PIXI.Sprite, m
         if (key.keyCode === 65 || key.keyCode === 37) {
             // If the A key or the Left arrow is pressed, move the player to the left.
             if (playerSprite.position.x != 0) {
-                // Don't move to the left if the player is at the left side of the stage
-                playerSprite.position.x -= boxWidth
-                if (isAvatarFacingRight) {
-                    playerSprite.scale.x *= -1; // Flip the avatar image horizontally
-                    isAvatarFacingRight = false;
+
+                if(mudApp.myAvatar.stamina > 0) {
+                    // Don't move to the left if the player is at the left side of the stage
+                    playerSprite.position.x -= boxWidth
+                    if (isAvatarFacingRight) {
+                        playerSprite.scale.x *= -1; // Flip the avatar image horizontally
+                        isAvatarFacingRight = false;
+                    }
+                    playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.WALK);
+                    window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
+                    console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
+                } else {
+                    playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.IDLE);
                 }
-                playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.WALK);
-                window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
-                console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
             }
         }
 
@@ -452,15 +487,19 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite2: PIXI.Sprite, m
                 let newPositionX = playerSprite.position.x
                 newPositionX += boxWidth
                 */
-                playerSprite.position.x += boxWidth
-                if (!isAvatarFacingRight) {
-                    playerSprite.scale.x *= -1; // Flip the avatar image horizontally
-                    isAvatarFacingRight = true;
+                if(mudApp.myAvatar.stamina > 0) {
+                    playerSprite.position.x += boxWidth
+                    if (!isAvatarFacingRight) {
+                        playerSprite.scale.x *= -1; // Flip the avatar image horizontally
+                        isAvatarFacingRight = true;
+                    }
+                    playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.WALK);
+                    window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
+                    console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
+                    //playerSprite.position.x = newPositionX;
+                } else {
+                    playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.IDLE);
                 }
-                playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.WALK);
-                window.setPosition(Math.round(playerSprite.x), Math.round(playerSprite.y));
-                console.log("pixi mudApp.myAvatar.position", mudApp.myAvatar.position);
-                //playerSprite.position.x = newPositionX;
             }
         }
 
@@ -468,7 +507,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite2: PIXI.Sprite, m
 
         // Y Key is 89
         if (key.keyCode === 89) {
-            alert("soft Fight call hurt 20 (addintent + wait 5 sec + removeintent)");
+            console.warn("soft Fight call hurt 20 (addintent + wait 5 sec + removeintent)");
             window.addIntent(1);
             window.hurt(20);
             playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.ATTACK_01);
@@ -480,7 +519,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite2: PIXI.Sprite, m
         }
         // X key is 88
         if (key.keyCode === 88) {
-            alert("hard Fight call hurt 50 (addintent + wait 5 sec + removeintent)");
+            console.warn("hard Fight call hurt 50 (addintent + wait 5 sec + removeintent)");
             window.addIntent(2)
             window.hurt(50);
             playerSprite = animatePlayer(playerSprite, mudApp.myAvatar, ANIMATIONS.ATTACK_01);
@@ -491,11 +530,11 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite2: PIXI.Sprite, m
         }
         // C key is 67
         if (key.keyCode === 67) {
-            alert("counter attack");
+            console.log("counter attack with c");
         }
         // V key is 86
         if (key.keyCode === 86) {
-            alert("special ability");
+            console.log("special ability with V");
         }
 
         // move to gameloop
@@ -543,7 +582,7 @@ function addStatsChangeHandler(app: PIXI.Application, playerSprite: PIXI.Sprite,
 
 
     document.addEventListener("onPlayerCreated", (event)=> {
-        alert("onPlayerCreated");
+        console.warn("onPlayerCreated");
 
     });
 

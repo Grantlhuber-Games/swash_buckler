@@ -1,6 +1,9 @@
 import { mount as mountDevTools } from "@latticexyz/dev-tools";
 import { setup } from "../mud/setup";
-import { runQuery, Has, HasValue, getComponentValueStrict } from "@latticexyz/recs";
+import { runQuery, Has, HasValue, Not, getComponentValueStrict } from "@latticexyz/recs";
+
+
+
 
 import CharacterComponent from "../models/Character";
 
@@ -32,16 +35,8 @@ export default async function setupMud(mudApp) {
 
     mountDevTools();
 
-    /*
-    //const { PlayerComponent, PositionComponent, NameComponent } = components
-        // query for all named players at the center of the universe
-            const matchingEntities = runQuery([
-                Has(components.Counter)
-            ])
-        // now you can map these to their name as an example
-        console.log("matchingEntities", matchingEntities)
-        // -> ["Bob", "Alice", "Eve"]
-     */
+
+
 }
 
 
@@ -174,6 +169,43 @@ function registerWindowFunctions(mudApp, mudObj: any) {
         },
     } = mudObj;
 
+    (window as any).queryTest = () => {
+        /*
+ //const { PlayerComponent, PositionComponent, NameComponent } = components
+// query for all named players at the center of the universe
+ const matchingEntities = runQuery([
+     Has(components.Counter)
+ ])
+// now you can map these to their name as an example
+console.log("matchingEntities", matchingEntities)
+// -> ["Bob", "Alice", "Eve"]
+*/
+        const { Character, Attributes, Position } = components
+        const matchingEntities = runQuery([
+            Has(Character) /** All entities with a Player component */,
+            Has(Attributes) /** All entities with a Player component */,
+            Has(Position) /** All entities with a Player component */,
+        ]);
+        console.log("matchingEntities", matchingEntities)
+        const matchArray = Array.from(matchingEntities);
+        const characterArray = matchArray.map(playerEntity => getComponentValueStrict(Character, playerEntity ));
+        console.log("characterArray", characterArray)
+
+
+        const posArray = matchArray.map(playerEntity => getComponentValueStrict(Position, playerEntity ));
+        console.log("posArray", posArray)
+        /*
+        const attribs = matchArray.map(playerEntity => getComponentValueStrict(Attributes, playerEntity ));
+        console.log("attribs", attribs)
+
+         */
+        return {
+            characterArray,
+            posArray
+        }
+    }
+
+
     (window as any).increment = async () => {
         console.log("new counter value:", await increment());
     };
@@ -208,9 +240,11 @@ function registerWindowFunctions(mudApp, mudObj: any) {
 
 
     (window as any).setPosition = async (x: number, y: number) => {
-        mudApp.myAvatar.position = { x, y };
-        console.log("mudApp.myAvatar.position", mudApp.myAvatar.position);
-        console.log("new position:", await setPosition(x, y));
+        if(mudApp.myAvatar.stamina > 0) {
+            mudApp.myAvatar.position = { x, y };
+            console.log("mudApp.myAvatar.position", mudApp.myAvatar.position);
+            console.log("new position:", await setPosition(x, y));
+        }
     };
 
     window.mud.healthSystem = window.mud.healthSystem || {};
