@@ -505,7 +505,7 @@ function addKeyboardHandler(app: PIXI.Application, playerSprite2: PIXI.Sprite, m
     }
     // Add the 'keydown' event listener to our document
     document.addEventListener("keydown", onKeyDown);
-    
+
     document.addEventListener("onRemoveKeyboardListener", () => {
         document.removeEventListener("keydown", onKeyDown)
 

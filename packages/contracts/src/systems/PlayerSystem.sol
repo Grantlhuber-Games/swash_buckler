@@ -27,10 +27,25 @@ contract PlayerSystem is System {
     Character.set(player, true, name, "Best char ever", charType);
     Attributes.set(player, 10, 5, 0, 20, 2);
     Position.set(player, 0, 0);
-    Health.set(player, 130);
-    Stamina.set(player, 30);
+    Health.set(player, 100);
+    Stamina.set(player, 60);
     Intent.set(player, 0, [1, 2, 3, 4]);
     Avatar.set(player, false);
+    //return Character.get();
+  }
+
+
+  function createOpponent(string memory name, string memory charType) public {
+    bytes32 player = addressToEntityKey(address(_msgSender()));
+    bytes32 monster = keccak256(abi.encode(player,blockhash(block.number-1),block.difficulty));
+    // set Character, Position, Attributes, Health, Stamina, Intent components
+    Character.set(monster, false, name, "Best opponent ever", charType);
+    Attributes.set(monster, 3, 2, 0, 20, 2);
+    Position.set(monster, 300, 200);
+    Health.set(monster, 70);
+    Stamina.set(monster, 20);
+    Intent.set(monster, 0, [1, 2, 3, 4]);
+    Avatar.set(monster, true);
     //return Character.get();
   }
 

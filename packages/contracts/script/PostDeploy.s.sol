@@ -24,6 +24,8 @@ contract PostDeploy is Script {
     //uint32 newValue2 = world.revive();
     //console.log("Health revive via IWorld: ", newValue2);
 
+    world.createOpponent("Lothar", "death_knight");
+
     //Static fields must come before dynamic fields in the schema
     Action.set(world, 1, ActionData({
       minLvl: 0,

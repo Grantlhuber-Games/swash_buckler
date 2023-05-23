@@ -6,5 +6,7 @@ pragma solidity >=0.8.0;
 interface IPlayerSystem {
   function createPlayer(string memory name, string memory charType) external;
 
+  function createOpponent(string memory name, string memory charType) external;
+
   function spawnPlayer(int32 x, int32 y) external;
 }
