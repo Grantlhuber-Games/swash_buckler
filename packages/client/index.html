@@ -4,10 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>a minimal MUD client</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      .ui-tools {
+        position: absolute;
+        padding: 10px;
+        bottom: 0px;
+        color: white;
+        background: rgba(0, 0, 0, 0.5);
+       }
+
+    </style>
+
   </head>
   <body>
     <script type="module" src="/src/index.ts"></script>
-    <div>
+    <div class="ui-tools">
       <div>
         Avatar: <span id="avatar"></span>
         <button onclick="window.createPlayer('Horst Rubesch der zweite', 'bandit')">createPlayer</button>
@@ -30,7 +44,6 @@
       <button onclick="window.revive()">revive</button>
       <button onclick="window.heal(20)">heal 20</button>
       <button onclick="window.hurt(5)">hurt 5</button>
-
     </div>
   </body>
 </html>

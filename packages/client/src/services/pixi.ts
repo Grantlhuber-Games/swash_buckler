@@ -77,7 +77,7 @@ export default function initPixi(mudApp: any) { // the name of this function is 
         const statsTable = createPlayerStats(hudContainer);
         const hud = createPlayerHud(hudContainer); // as of here updateHUD is available
         // hud.updateHUD(mudApp.myAvatar.health, mudApp.myAvatar.stamina); // here we update the HUD with the current values
-        hud.updateHUD(100, 50); // here we update the HUD with 100 health and 50 stamina
+        hud.updateHUD(30, 50); // here we update the HUD with 100 health and 50 stamina
         // console.log("hud", hud); // here we can see the hudContainer and the updateHUD function
 
 
@@ -187,9 +187,6 @@ function createLevel(app: PIXI.Application, parentContainer: PIXI.Container) {
 
 function createHUD(app: PIXI.Application, parentContainer: PIXI.Container) {
     // Create a text element for the title
-    let text = new PIXI.Text(
-        "Swash Buckler", GLOBAL_VARS.textStyle
-    );
     // Create a container for the fullscreen button
     const fullscreenButtonContainer = new PIXI.Container();
     // Create a button element for fullscreen
@@ -212,7 +209,7 @@ function createHUD(app: PIXI.Application, parentContainer: PIXI.Container) {
     // Attach the toggleFullscreen function to the button's click event
     fullscreenButton.addEventListener("click", toggleFullscreen);
 
-    parentContainer.addChild(fullscreenButtonContainer, text);
+    parentContainer.addChild(fullscreenButtonContainer);
 
     return fullscreenButtonContainer;
 }
