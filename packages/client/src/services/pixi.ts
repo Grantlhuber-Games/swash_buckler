@@ -270,14 +270,26 @@ function createPlayerHud(parentContainer: PIXI.Container) {
     healthBar.y =3; // Position the bar 
     hudContainer.addChild(healthBar);
 
-    // Dexterity Bar
+    // Stamina Bar
     const staminaBar = new PIXI.Graphics();
     staminaBar.beginFill(0x52a9fb); // Blue
-    staminaBar.drawRect(0, 0, 420, 22); // position, width, height
-    staminaBar.endFill(); // Close the fill
-    staminaBar.x = -572; // Position the bar
-    staminaBar.y = 51; // Position the bar
+    staminaBar.drawRect(0, 0, 420, 22);
+    staminaBar.endFill();
+    staminaBar.x = -572;
+    staminaBar.y = 51;
     hudContainer.addChild(staminaBar);
+
+    const spritesArray = []; // Array to hold the sprites
+
+    // Create and add sprites to the array
+    for (let i = 0; i < 6; i++) {
+        const sprite = PIXI.Sprite.from(`assets/icons/intent_0${i}.png`); // assets/icons/intent_1.png
+        sprite.x = i * 100; // Adjust the positioning based on your requirements
+        sprite.y = -3; // Adjust the positioning based on your requirements
+        sprite.scale.set(0.8);
+        spritesArray.push(sprite);
+        hudContainer.addChild(sprite);
+    }
 
     // Calculate the bounds of the hudContainer's children
     const bounds = hudContainer.getBounds();
