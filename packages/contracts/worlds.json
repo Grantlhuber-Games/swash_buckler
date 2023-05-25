@@ -1,4 +1,8 @@
 {
+  "4242": {
+    "address": "0x62CEBB5846F4F24FeDF59ECE2bC282D30261C318",
+    "blockNumber": 15246832
+  },
   "31337": {
     "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
   }

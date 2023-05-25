@@ -1,6 +1,7 @@
 // TODO add enums for charType
 export default class Avatar {
     constructor(_characterObj, _attributesObj, _position, _health, _stamina, _intentObj) {
+
         this.character = {
             name: _characterObj.name,
             human: _characterObj.human,
@@ -24,8 +25,9 @@ export default class Avatar {
         }
         this.spawned = false;
 
-        // js only
+        // UI only TODO add to class
         this.action = "Idle";
+        this.uiObject = null;
     }
 
 
@@ -46,16 +48,7 @@ export default class Avatar {
     public setSpawned(newVal: boolean) {
         this.spawned = newVal;
     }
-    /**
-     * Contains the current animation.name
-     * @param newAction
-     */
-    public setAction(newAction: string) {
-        this.action = newAction;
-    }
-    public getAction() {
-        return this.action;
-    }
+
     public setCharacter(obj: any) {
         console.log("avatar: setCharacterByObject", obj)
        this.character = JSON.parse(JSON.stringify(obj));
@@ -101,4 +94,25 @@ export default class Avatar {
     }
 
  */
+    //////////////////// UI
+
+    /**
+     * Contains the current animation.name
+     * @param newAction
+     */
+    public setUIObject(newUIObject: any) {
+        this.uiObject = newUIObject;
+    }
+    public getUIObject() {
+        return this.uiObject;
+    }
+    public setAction(newAction: string) {
+        this.action = newAction;
+    }
+    public getAction() {
+        return this.action;
+    }
+
+
+
 }

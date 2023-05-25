@@ -5,7 +5,7 @@ const
     name: "Action",
     modelSchema: {
         keySchema: {
-            id: "uint8" // explicitly no avatar msg.sender
+           id: "uint8" // explicitly no avatar msg.sender
         },
         schema: {
             //TODO effects such as counter attack

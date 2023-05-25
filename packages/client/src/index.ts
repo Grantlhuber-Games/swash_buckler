@@ -1,6 +1,6 @@
 import mudService from "./services/mud";
 import Avatar from "./models/Avatar";
-import initPixi from "./services/pixi";
+import initPixi from "./ui/pixi";
 
 // Setup of the game within the window
 class App {
